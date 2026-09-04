@@ -33,3 +33,4 @@ class User(Base):
         onupdate=func.now(),
     )
     assessments: Mapped[list["Assessment"]] = relationship(back_populates="user")
+    user_actions: Mapped[list["UserAction"]] = relationship(back_populates="user")
