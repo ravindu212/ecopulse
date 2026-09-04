@@ -1,0 +1,2444 @@
+CLIMATE ACTION PLATFORM
+CODEX MASTER PROJECT PLAN + DEVELOPER INITIALIZATION GUIDE
+Version: 1.0
+Working title: EcoPulse
+Primary SDG: United Nations SDG 13 - Climate Action
+Architecture: Next.js + FastAPI + PostgreSQL
+Repository style: Monorepo with /frontend and /backend
+Primary goal: Build a polished, fully functioning web application that turns climate awareness into measurable personal action.
+
+======================================================================
+0. HOW CODEX SHOULD USE THIS FILE
+======================================================================
+
+This file is the source of truth for the project unless the developer explicitly overrides a decision.
+
+Codex should:
+1. Read this entire file before making architectural decisions.
+2. Implement the project phase by phase.
+3. Preserve the chosen stack and folder separation.
+4. Avoid silently adding major libraries, services, or architectural patterns.
+5. Keep the application runnable after every phase.
+6. Prefer readable code over clever code.
+7. Keep security and validation reasonable for a real web app.
+8. Do not fake completed functionality with hardcoded UI-only data when the feature is supposed to use the backend.
+9. Do not add unnecessary features before the MVP is complete.
+10. Ask before making a major scope change.
+11. When a task is ambiguous, choose the simplest implementation consistent with this plan.
+12. Keep documentation updated as routes, models, environment variables, and commands change.
+13. Never commit secrets or .env files.
+14. Use real database persistence for user, assessment, action, and challenge data.
+15. Keep all climate scoring language transparent. This app is not an official carbon audit tool.
+
+Priority order:
+A. Working end-to-end functionality
+B. Correct data flow
+C. Polished user experience
+D. Reliability and validation
+E. Visual refinement
+F. Stretch features
+
+======================================================================
+1. PROJECT CONTEXT AND SUBMISSION CONSTRAINTS
+======================================================================
+
+The project is being built for an SDG-focused web application challenge.
+
+The application must demonstrate:
+- A real frontend connected to a real backend.
+- A database that stores genuine application data.
+- At least one meaningful user interaction that triggers backend logic.
+- Thoughtful design rather than an unstyled/default layout.
+- Code the developer can understand and explain.
+
+Expected submission materials:
+- GitHub repository link.
+- Demo video of the working application.
+- Technical documentation, maximum 3 pages.
+- Hosted/live link is optional but encouraged.
+
+Deadline:
+- 5 September 2026, 11:59 p.m.
+
+Important development consequence:
+- Do not spend the final hours expanding scope.
+- Keep a stable, demo-ready build available.
+- Reserve time for deployment, README, technical documentation, demo data, and video recording.
+- A second bonus requirement may be announced on deadline day, so the architecture should leave room for one small bonus feature without destabilizing the core.
+
+======================================================================
+2. PRODUCT VISION
+======================================================================
+
+Working product name:
+EcoPulse
+
+Tagline:
+Understand your impact. Take action. Track change.
+
+Core idea:
+EcoPulse is a personal climate action platform for students and young adults. It helps users understand their everyday climate-related habits, identifies the areas where improvement is most useful, recommends practical actions, and tracks progress over time.
+
+Primary audience:
+- Students.
+- Young adults.
+- Approximately ages 15 to 30.
+- Users who care about climate change but need practical, understandable actions.
+
+Core product loop:
+ASSESS -> UNDERSTAND -> ACT -> COMPLETE -> TRACK -> IMPROVE -> REPEAT
+
+User promise:
+The app will not merely tell users that climate change exists. It will help them decide what to do next.
+
+======================================================================
+3. PROBLEM STATEMENT
+======================================================================
+
+Many people understand that climate change is important but struggle to convert awareness into practical behavior.
+
+Typical problems:
+- Climate information is often broad or overwhelming.
+- Users do not know which everyday habits matter most for them.
+- Advice is generic instead of personalized.
+- There is little feedback after an action is completed.
+- Progress is difficult to visualize.
+- Climate action can feel abstract and unrewarding.
+
+EcoPulse solves this by:
+- Asking a short lifestyle assessment.
+- Producing a transparent Climate Action Score.
+- Showing category strengths and weaknesses.
+- Recommending practical actions.
+- Letting users complete actions.
+- Tracking estimated impact, XP, streaks, and progress.
+- Offering short climate challenges.
+
+======================================================================
+4. PROJECT SCOPE
+======================================================================
+
+CORE CLIMATE CATEGORIES
+
+1. Transport
+Examples:
+- Walking/cycling.
+- Public transport.
+- Motorcycle.
+- Private car.
+- Ride sharing.
+- Number/frequency of trips.
+
+2. Energy
+Examples:
+- Air conditioning habits.
+- Lighting.
+- Device/equipment usage.
+- Energy-saving habits.
+- Renewable energy awareness/use where applicable.
+
+3. Food
+Examples:
+- Meat frequency.
+- Food waste.
+- Local/seasonal choices.
+- Reusable food/drink habits.
+
+4. Waste
+Examples:
+- Recycling.
+- Single-use plastics.
+- Reuse.
+- Disposal habits.
+- E-waste awareness.
+
+MVP FEATURES
+
+MUST HAVE:
+1. Responsive landing page.
+2. User registration.
+3. User login/logout.
+4. Authenticated session handling.
+5. Multi-step climate assessment.
+6. Backend climate score calculation.
+7. Category scores.
+8. Assessment result page.
+9. Personalized action recommendations.
+10. Actions page.
+11. Start/complete climate action.
+12. Persistent completed action history.
+13. User dashboard.
+14. XP.
+15. Basic streak.
+16. Estimated impact total.
+17. Challenges list.
+18. Join a challenge.
+19. Challenge progress.
+20. Progress page with charts.
+21. Profile page.
+22. Database-backed data.
+23. Input validation and useful error states.
+24. Loading states.
+25. Seed data for climate actions/challenges.
+26. Production deployment.
+
+SHOULD HAVE:
+1. Re-take assessment.
+2. Assessment history.
+3. Filters by climate category.
+4. Difficulty and impact labels.
+5. Achievements/badges.
+6. Monthly progress graph.
+7. Dark premium climate visual identity.
+8. Helpful onboarding.
+9. Empty states.
+10. Toast feedback.
+11. Mobile-friendly dashboard.
+
+COULD HAVE / STRETCH:
+1. Public leaderboard.
+2. Community challenge.
+3. Local climate events.
+4. Educational "Learn" page.
+5. AI climate assistant.
+6. Carbon-data API integrations.
+7. Admin dashboard.
+8. Email verification.
+9. Social login.
+10. Notifications.
+11. PWA/offline support.
+12. Map features.
+
+DO NOT IMPLEMENT BEFORE CORE IS STABLE:
+- Social feed.
+- Chat.
+- Donations/payment system.
+- Marketplace.
+- Complex organization accounts.
+- IoT integrations.
+- Machine learning.
+- Real-time messaging.
+- Large admin CMS.
+- Complex role hierarchy.
+
+======================================================================
+5. TECH STACK
+======================================================================
+
+FRONTEND
+- Next.js, App Router.
+- TypeScript.
+- React.
+- Tailwind CSS.
+- shadcn/ui for selected primitives.
+- Framer Motion for restrained motion.
+- Recharts for charts.
+- Lucide React for icons.
+- Zod for frontend form validation where helpful.
+- React Hook Form for forms where useful.
+- Native fetch for API calls unless there is a strong reason to add another client.
+
+BACKEND
+- Python.
+- FastAPI.
+- Pydantic.
+- SQLAlchemy 2.x.
+- Alembic for migrations.
+- psycopg PostgreSQL driver.
+- pydantic-settings for configuration.
+- PyJWT for JWT tokens.
+- pwdlib with Argon2 for password hashing.
+- Uvicorn for local development.
+
+DATABASE
+- PostgreSQL.
+
+LOCAL DATABASE
+- PostgreSQL in Docker Compose.
+
+PRODUCTION
+- Frontend: Vercel.
+- Backend: Render free service or equivalent.
+- Database: Neon PostgreSQL or another PostgreSQL free tier.
+
+REPOSITORY
+One Git repository:
+/
+  frontend/
+  backend/
+  docs/
+  docker-compose.yml
+  .gitignore
+  README.md
+  PROJECT_PLAN.txt
+
+IMPORTANT ARCHITECTURE RULE:
+Next.js must NOT connect directly to PostgreSQL.
+All application data access goes through FastAPI.
+
+Data flow:
+Browser -> Next.js UI -> FastAPI REST API -> SQLAlchemy -> PostgreSQL
+
+======================================================================
+6. HIGH-LEVEL ARCHITECTURE
+======================================================================
+
+                 USER
+                  |
+                  v
+        +-------------------+
+        |      Next.js      |
+        |-------------------|
+        | Landing           |
+        | Authentication UI |
+        | Assessment        |
+        | Dashboard         |
+        | Actions           |
+        | Challenges        |
+        | Progress          |
+        +---------+---------+
+                  |
+                  | HTTPS / REST / JSON
+                  v
+        +-------------------+
+        |      FastAPI      |
+        |-------------------|
+        | Auth service      |
+        | User service      |
+        | Assessment engine |
+        | Climate scoring   |
+        | Recommendation    |
+        | Action tracking   |
+        | Challenge logic   |
+        | Progress logic    |
+        +---------+---------+
+                  |
+                  | SQLAlchemy
+                  v
+        +-------------------+
+        |    PostgreSQL     |
+        +-------------------+
+
+Frontend responsibilities:
+- Render UI.
+- Collect user input.
+- Client-side validation for UX.
+- Call backend.
+- Manage local UI state.
+- Display server responses.
+- Protect authenticated routes at UI level.
+- Never be the authority for score/XP/action completion calculations.
+
+Backend responsibilities:
+- Authentication.
+- Authorization.
+- Input validation.
+- Password hashing.
+- Token issuance.
+- Climate score calculations.
+- Recommendations.
+- Action completion rules.
+- XP changes.
+- Streak logic.
+- Challenge progress.
+- Database persistence.
+- Business logic.
+
+Database responsibilities:
+- Persistent source of truth.
+
+======================================================================
+7. REPOSITORY AND FOLDER STRUCTURE
+======================================================================
+
+ROOT
+
+ecopulse/
+|
+|-- frontend/
+|   |-- src/
+|   |   |-- app/
+|   |   |   |-- (marketing)/
+|   |   |   |   |-- page.tsx
+|   |   |   |   |-- about/
+|   |   |   |   |-- learn/
+|   |   |   |
+|   |   |   |-- (auth)/
+|   |   |   |   |-- login/
+|   |   |   |   |-- register/
+|   |   |   |
+|   |   |   |-- (app)/
+|   |   |       |-- dashboard/
+|   |   |       |-- assessment/
+|   |   |       |-- assessment/results/
+|   |   |       |-- actions/
+|   |   |       |-- challenges/
+|   |   |       |-- progress/
+|   |   |       |-- profile/
+|   |   |
+|   |   |-- components/
+|   |   |   |-- ui/
+|   |   |   |-- layout/
+|   |   |   |-- landing/
+|   |   |   |-- assessment/
+|   |   |   |-- dashboard/
+|   |   |   |-- actions/
+|   |   |   |-- challenges/
+|   |   |   |-- charts/
+|   |   |
+|   |   |-- lib/
+|   |   |   |-- api.ts
+|   |   |   |-- auth.ts
+|   |   |   |-- utils.ts
+|   |   |   |-- constants.ts
+|   |   |
+|   |   |-- hooks/
+|   |   |-- types/
+|   |
+|   |-- public/
+|   |-- .env.local.example
+|   |-- package.json
+|   |-- tsconfig.json
+|
+|-- backend/
+|   |-- app/
+|   |   |-- main.py
+|   |   |-- core/
+|   |   |   |-- config.py
+|   |   |   |-- security.py
+|   |   |   |-- database.py
+|   |   |
+|   |   |-- models/
+|   |   |   |-- user.py
+|   |   |   |-- assessment.py
+|   |   |   |-- action.py
+|   |   |   |-- challenge.py
+|   |   |
+|   |   |-- schemas/
+|   |   |   |-- auth.py
+|   |   |   |-- user.py
+|   |   |   |-- assessment.py
+|   |   |   |-- action.py
+|   |   |   |-- challenge.py
+|   |   |   |-- progress.py
+|   |   |
+|   |   |-- api/
+|   |   |   |-- deps.py
+|   |   |   |-- routes/
+|   |   |       |-- auth.py
+|   |   |       |-- users.py
+|   |   |       |-- assessments.py
+|   |   |       |-- actions.py
+|   |   |       |-- challenges.py
+|   |   |       |-- progress.py
+|   |   |
+|   |   |-- services/
+|   |   |   |-- auth_service.py
+|   |   |   |-- climate_scoring.py
+|   |   |   |-- recommendations.py
+|   |   |   |-- action_service.py
+|   |   |   |-- challenge_service.py
+|   |   |   |-- progress_service.py
+|   |   |
+|   |   |-- seed/
+|   |       |-- seed.py
+|   |       |-- data/
+|   |
+|   |-- alembic/
+|   |-- tests/
+|   |-- requirements.txt
+|   |-- .env.example
+|   |-- alembic.ini
+|
+|-- docs/
+|   |-- architecture.txt
+|   |-- api.txt
+|   |-- demo-script.txt
+|
+|-- docker-compose.yml
+|-- .gitignore
+|-- README.md
+|-- PROJECT_PLAN.txt
+
+The structure may be adjusted slightly if framework initialization creates standard files.
+Do not create abstractions that have no immediate purpose.
+
+======================================================================
+8. DOMAIN MODEL / DATABASE DESIGN
+======================================================================
+
+Use UUID primary keys unless a strong implementation reason suggests otherwise.
+Use UTC timestamps in storage.
+
+TABLE: users
+
+Fields:
+- id: UUID primary key
+- name: string, required
+- email: string, unique, indexed, required
+- password_hash: string, required
+- xp: integer, default 0
+- current_streak: integer, default 0
+- longest_streak: integer, default 0
+- last_action_date: date nullable
+- created_at: timestamp
+- updated_at: timestamp
+
+Do NOT store:
+- plaintext passwords.
+- derived dashboard totals that can easily be calculated, unless performance later justifies it.
+
+TABLE: assessments
+
+Fields:
+- id: UUID primary key
+- user_id: foreign key -> users.id
+- answers: JSONB
+- transport_score: integer 0..100
+- energy_score: integer 0..100
+- food_score: integer 0..100
+- waste_score: integer 0..100
+- overall_score: integer 0..100
+- lowest_category: enum/string
+- created_at: timestamp
+
+Reason for JSONB:
+The assessment is small and evolving. JSONB keeps the first version flexible while category/overall scores remain queryable columns.
+
+TABLE: climate_actions
+
+Fields:
+- id: UUID primary key
+- title: string
+- slug: string unique
+- category: enum/string [transport, energy, food, waste]
+- description: text
+- why_it_matters: text nullable
+- difficulty: enum [easy, medium, hard]
+- impact_level: enum [low, medium, high]
+- estimated_co2e_kg: decimal nullable
+- xp_reward: integer
+- recommendation_tags: JSONB or array
+- active: boolean default true
+- created_at
+- updated_at
+
+Important:
+estimated_co2e_kg is an estimate used only when a reasonable estimate is available.
+UI must label it as estimated.
+
+TABLE: user_actions
+
+Fields:
+- id: UUID primary key
+- user_id: FK -> users
+- action_id: FK -> climate_actions
+- status: enum [started, completed, cancelled]
+- started_at: timestamp
+- completed_at: timestamp nullable
+- xp_awarded: integer default 0
+- estimated_co2e_kg_awarded: decimal default 0
+- created_at
+- updated_at
+
+Rules:
+- XP is awarded only once per completion record.
+- Avoid accidental double-completion.
+- For repeatable actions, create a new user_action record rather than re-awarding the same one unless a repeat model is explicitly implemented.
+
+TABLE: challenges
+
+Fields:
+- id: UUID primary key
+- title: string
+- slug: string unique
+- description: text
+- category: nullable
+- duration_days: integer
+- xp_reward: integer
+- badge_name: nullable
+- active: boolean
+- created_at
+- updated_at
+
+TABLE: challenge_actions
+
+Fields:
+- id: UUID primary key
+- challenge_id: FK -> challenges
+- action_id: FK -> climate_actions
+- day_number: integer nullable
+- sort_order: integer
+
+TABLE: user_challenges
+
+Fields:
+- id: UUID primary key
+- user_id: FK -> users
+- challenge_id: FK -> challenges
+- started_at: timestamp
+- completed_at: timestamp nullable
+- status: enum [active, completed, abandoned]
+- completed_steps: integer default 0
+- created_at
+- updated_at
+
+OPTIONAL TABLE: badges
+Only add if badges are actually implemented.
+
+Indexes:
+- users.email
+- assessments.user_id + created_at
+- climate_actions.category
+- user_actions.user_id + created_at
+- user_actions.user_id + status
+- user_challenges.user_id + status
+
+Relationships:
+User 1 -> many Assessments
+User 1 -> many UserActions
+ClimateAction 1 -> many UserActions
+Challenge many <-> many ClimateAction through ChallengeAction
+User many <-> many Challenge through UserChallenge
+
+======================================================================
+9. AUTHENTICATION AND SECURITY
+======================================================================
+
+MVP authentication:
+- Email + password.
+- Backend owns authentication.
+- Password hash using Argon2 through pwdlib.
+- JWT access token.
+- Frontend sends Authorization: Bearer <token>.
+
+Practical project decision:
+For the short competition build, token persistence may use sessionStorage or a carefully isolated client-side auth store.
+Do NOT claim this is the ideal production design.
+If time permits, improve to a secure cookie/proxy strategy later.
+
+Backend endpoints:
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+GET  /api/v1/auth/me
+
+Register validation:
+- valid email
+- reasonable name length
+- password minimum length
+- duplicate email rejected
+
+Login:
+- generic invalid credentials error
+- never reveal whether password or email was specifically wrong
+
+Authorization:
+- All /me, assessments, user actions, challenges join/progress, and progress endpoints require a valid token.
+- A user may only mutate their own records.
+
+CORS:
+Development:
+- allow http://localhost:3000
+
+Production:
+- allow only deployed frontend origin(s)
+- do not use wildcard origins with credentials-sensitive behavior
+
+Secrets:
+- JWT secret from environment
+- DB connection string from environment
+- never hardcode credentials
+
+Error handling:
+- predictable JSON errors
+- no stack trace returned to client in production
+
+======================================================================
+10. CLIMATE ASSESSMENT DESIGN
+======================================================================
+
+Goal:
+Create a useful personalized score without pretending to be a scientific carbon footprint calculator.
+
+Important language:
+Call it a "Climate Action Score" or "Lifestyle Climate Score".
+Do not call it an exact carbon footprint unless a validated emissions methodology is later implemented.
+
+Higher score = more climate-friendly current habits.
+
+Category score range:
+0 to 100.
+
+Overall score:
+Average of the four category scores for MVP:
+overall = round((transport + energy + food + waste) / 4)
+
+Keep weights equal initially.
+This makes the scoring model easy to explain and avoids pretending arbitrary category weighting is scientifically authoritative.
+
+Assessment target length:
+12 to 16 questions total.
+Aim for about 3 minutes.
+
+Example questions:
+
+TRANSPORT
+T1. What is your most common travel mode?
+- walk/cycle -> 100
+- train -> 85
+- bus -> 75
+- shared car/ride -> 55
+- motorcycle -> 40
+- private car -> 25
+
+T2. How often do you choose walking/cycling for short trips?
+- almost always -> 100
+- often -> 80
+- sometimes -> 60
+- rarely -> 30
+- never -> 10
+
+T3. How often do you use public transport when practical?
+- almost always -> 100
+- often -> 80
+- sometimes -> 60
+- rarely -> 30
+- never -> 10
+
+ENERGY
+E1. Do you turn off lights/devices when not needed?
+- always -> 100
+- usually -> 80
+- sometimes -> 55
+- rarely -> 25
+
+E2. How often do you use air conditioning for long periods?
+- rarely/never -> 100
+- occasionally -> 75
+- several days/week -> 45
+- daily for long periods -> 20
+
+E3. Do you intentionally use energy-saving settings/appliances?
+- frequently -> 100
+- sometimes -> 65
+- rarely -> 30
+- not sure -> 50
+
+FOOD
+F1. How often do you eat high-impact meat meals?
+Use neutral wording and no moral judgment.
+- rarely -> 100
+- 1 to 2 times/week -> 80
+- 3 to 4 -> 55
+- most days -> 30
+
+F2. How often is food thrown away in your household/personal meals?
+- almost never -> 100
+- occasionally -> 75
+- sometimes -> 50
+- often -> 20
+
+F3. Do you intentionally choose local/seasonal or lower-waste food options?
+- often -> 100
+- sometimes -> 65
+- rarely -> 30
+
+WASTE
+W1. How often do you use reusable bottles/bags/containers?
+- almost always -> 100
+- often -> 80
+- sometimes -> 55
+- rarely -> 25
+
+W2. Do you separate recyclable waste where facilities are available?
+- consistently -> 100
+- sometimes -> 60
+- rarely -> 25
+- facilities unavailable -> neutral 50
+
+W3. How often do you avoid unnecessary single-use items?
+- almost always -> 100
+- often -> 80
+- sometimes -> 55
+- rarely -> 25
+
+Scoring:
+- Each question maps to a numeric value.
+- Category score = rounded mean of its question scores.
+- Overall = rounded mean of category scores.
+- lowest_category = lowest category score.
+- If tied, choose based on a deterministic order or return multiple weak categories.
+
+Important:
+Store the scoring rules in backend code/config, not frontend.
+Frontend should not be able to manipulate the final score.
+
+======================================================================
+11. RECOMMENDATION ENGINE
+======================================================================
+
+MVP recommendation engine is deterministic and rule-based.
+
+Inputs:
+- latest assessment category scores
+- relevant answers
+- user's already completed/recent actions
+
+Priority:
+1. Lowest category.
+2. Second-lowest category.
+3. Actions matching problematic answers.
+4. Prefer actions not recently completed.
+5. Mix difficulty so at least one easy action appears.
+
+Example:
+If transport is the lowest category and user says private car:
+Recommend:
+- Replace one short car trip with walking/cycling.
+- Use public transport for one trip this week.
+- Combine errands into one journey.
+
+If waste score is low:
+Recommend:
+- Use a reusable bottle today.
+- Refuse one unnecessary single-use item.
+- Separate recyclable waste this week.
+
+API response should return:
+- action id
+- title
+- category
+- difficulty
+- impact level
+- XP
+- estimated impact if available
+- short reason such as "Recommended because transport is currently your lowest category."
+
+Do not use AI for MVP recommendations.
+Rule-based logic is more reliable, explainable, testable, and faster to finish.
+
+======================================================================
+12. XP, STREAK, AND PROGRESS RULES
+======================================================================
+
+XP:
+Each climate action has an xp_reward.
+
+Suggested:
+Easy: 40 to 60 XP
+Medium: 70 to 100 XP
+Hard: 120 to 160 XP
+
+Do not calculate XP in frontend.
+
+On completion:
+- validate ownership and state
+- mark action completed
+- set completed_at
+- award XP exactly once
+- add estimated CO2e value exactly once if present
+- update streak
+- check challenge progress
+
+STREAK:
+Simple daily streak based on at least one completed climate action per calendar day.
+
+Rules:
+- If no last_action_date: streak = 1.
+- If last_action_date is yesterday: streak += 1.
+- If last_action_date is today: streak unchanged.
+- Otherwise: streak = 1.
+- longest_streak = max(longest_streak, current_streak)
+- update last_action_date
+
+Be explicit about timezone handling.
+For MVP, use UTC consistently or a clearly documented application timezone.
+Do not let repeated actions on the same day increase streak multiple times.
+
+Estimated impact:
+Dashboard sum:
+SUM(user_actions.estimated_co2e_kg_awarded WHERE status=completed)
+
+Always display:
+"Estimated CO2e avoided"
+not
+"CO2 definitely saved"
+
+======================================================================
+13. CHALLENGE LOGIC
+======================================================================
+
+MVP:
+Challenges are curated by seed data.
+
+Example challenge:
+7-Day Low Carbon Starter
+
+Challenge actions:
+Day 1: Use a reusable bottle.
+Day 2: Walk/cycle one short journey.
+Day 3: Avoid one single-use plastic item.
+Day 4: Turn off unused devices.
+Day 5: Choose a lower-impact meal.
+Day 6: Use public transport where practical.
+Day 7: Complete one action of your choice.
+
+Joining:
+POST /challenges/{id}/join
+
+Progress:
+- challenge step completion should be derived from relevant user action completions where practical
+OR
+- explicit challenge step completion may be implemented if it is simpler and clearly connected to backend.
+
+Completion:
+- all required steps completed
+- award challenge XP once
+- set completed_at
+- badge can be shown if enabled
+
+Avoid complex recurring scheduling for MVP.
+
+======================================================================
+14. API SPECIFICATION
+======================================================================
+
+Base:
+http://localhost:8000/api/v1
+
+HEALTH
+
+GET /health
+Response:
+{
+  "status": "ok"
+}
+
+AUTH
+
+POST /auth/register
+Body:
+{
+  "name": "Vidusara",
+  "email": "user@example.com",
+  "password": "..."
+}
+
+Response:
+{
+  "access_token": "...",
+  "token_type": "bearer",
+  "user": {...}
+}
+
+POST /auth/login
+Body:
+{
+  "email": "...",
+  "password": "..."
+}
+
+GET /auth/me
+Auth required.
+Returns current user.
+
+ASSESSMENTS
+
+GET /assessments/questions
+Can return assessment metadata/questions, or frontend questions can be static.
+Preferred for MVP:
+Keep question wording/options in shared frontend constants and authoritative scoring in backend.
+If time allows, make questions backend-driven.
+
+POST /assessments
+Auth required.
+Body:
+{
+  "answers": {
+     "T1": "...",
+     "T2": "...",
+     ...
+  }
+}
+
+Backend:
+- validates known question keys/options
+- calculates scores
+- saves assessment
+- returns result and recommendations
+
+Response:
+{
+  "assessment_id": "...",
+  "scores": {
+    "transport": 45,
+    "energy": 70,
+    "food": 65,
+    "waste": 80,
+    "overall": 65
+  },
+  "lowest_category": "transport",
+  "recommendations": [...]
+}
+
+GET /assessments/latest
+Auth required.
+
+GET /assessments/history
+Auth required.
+Optional for first pass.
+
+ACTIONS
+
+GET /actions
+Query parameters:
+- category
+- difficulty
+- impact_level
+
+GET /actions/recommended
+Auth required.
+Uses latest assessment.
+
+POST /actions/{action_id}/start
+Auth required.
+
+POST /user-actions/{user_action_id}/complete
+Auth required.
+
+GET /user-actions
+Auth required.
+Query:
+- status
+- category optional
+
+CHALLENGES
+
+GET /challenges
+GET /challenges/{id}
+POST /challenges/{id}/join
+GET /challenges/me
+POST /user-challenges/{id}/abandon optional
+
+PROGRESS
+
+GET /progress/summary
+Auth required.
+
+Response example:
+{
+  "climate_score": 72,
+  "score_change": 6,
+  "xp": 820,
+  "current_streak": 6,
+  "longest_streak": 11,
+  "actions_completed": 14,
+  "estimated_co2e_kg": 21.6,
+  "category_scores": {...}
+}
+
+GET /progress/monthly
+Auth required.
+Returns data for Recharts.
+
+PROFILE
+
+GET /users/me
+PATCH /users/me
+Only editable safe fields such as name.
+
+======================================================================
+15. FRONTEND ROUTES AND PAGE REQUIREMENTS
+======================================================================
+
+PUBLIC
+
+/
+Landing page.
+
+Must include:
+- premium hero
+- one-sentence product value
+- primary CTA: Start My Assessment
+- secondary CTA: Explore How It Works
+- visual explanation of Assess -> Act -> Track
+- four category section
+- featured challenge
+- sample impact/dashboard preview
+- SDG 13 reference
+- footer
+
+/login
+- email
+- password
+- validation
+- loading
+- error state
+- link to register
+
+/register
+- name
+- email
+- password
+- confirm password
+- loading/error
+- redirect to assessment or dashboard after success
+
+OPTIONAL PUBLIC
+/about
+/learn
+
+AUTHENTICATED
+
+/assessment
+- multi-step wizard
+- one question or small group per screen
+- clear progress
+- Back/Next
+- answers preserved during steps
+- submit only at end
+- loading state during calculation
+
+/assessment/results
+- overall Climate Action Score
+- category scores
+- explanation
+- biggest opportunity
+- 3 recommended actions
+- CTA to dashboard/actions
+
+/dashboard
+The highest-priority logged-in screen.
+
+Show:
+- greeting
+- Climate Action Score
+- score change if available
+- XP
+- streak
+- completed action count
+- estimated CO2e avoided
+- category overview
+- current recommended action
+- active challenge
+- recent activity
+- progress chart
+
+/actions
+- recommended section
+- all actions
+- filters
+- action cards
+- Start button
+- Complete button where appropriate
+- status feedback
+
+/challenges
+- available challenges
+- active challenge
+- progress bar
+- join button
+
+/progress
+- monthly progress chart
+- category chart
+- completed actions
+- estimated impact
+- streak
+- assessment change
+
+/profile
+- name/email
+- XP
+- streak records
+- account metadata
+- assessment retake CTA
+- logout
+
+======================================================================
+16. VISUAL DESIGN SYSTEM
+======================================================================
+
+Goal:
+A premium climate-tech product, not a generic bright-green NGO template.
+
+Visual direction:
+- dark, calm, modern
+- nature + technology
+- glass and layered surfaces used lightly
+- bold typography
+- subtle gradient atmosphere
+- data visualization
+- motion that communicates state, not decoration everywhere
+
+Suggested palette:
+Background: #071A17
+Surface: #0E2722
+Elevated surface: #15332C
+Primary: #5EE89A
+Secondary: #62D9FF
+Accent: #F4D35E
+Text: #F4FFF9
+Muted text: #A5BBB2
+Danger: use accessible red tone
+Border: translucent/low contrast
+
+Use CSS variables/tokens rather than scattering literals.
+
+Typography:
+- clean sans-serif
+- strong large hero heading
+- compact readable dashboard typography
+
+Radius:
+- modern medium/large radius
+- consistent cards
+
+Spacing:
+- generous
+- avoid dense admin-panel appearance
+
+Animation:
+- Framer Motion
+- hero entrance
+- progress number/count transitions
+- card hover
+- assessment transitions
+- avoid excessive continuous animations
+
+Responsive:
+- mobile-first
+- dashboard stacks naturally
+- assessment must be excellent on mobile
+- no horizontal overflow
+- minimum touch targets
+
+Accessibility:
+- semantic HTML
+- labels on forms
+- sufficient contrast
+- keyboard usable
+- visible focus states
+- icons should not be the only source of meaning
+- charts need adjacent text summaries
+
+======================================================================
+17. LANDING PAGE COPY DIRECTION
+======================================================================
+
+Tone:
+Hopeful, practical, clear.
+Never guilt-heavy.
+Never catastrophize.
+Never claim one person's actions alone "save the planet."
+
+Hero candidate:
+YOUR ACTIONS SHAPE TOMORROW
+
+Supporting copy:
+Understand your everyday climate impact, discover practical actions that fit your life, and track your progress over time.
+
+CTA:
+Start My Assessment
+
+Secondary:
+See How It Works
+
+Core section:
+ASSESS
+Answer a short lifestyle assessment.
+
+ACT
+Get practical recommendations based on your habits.
+
+TRACK
+See actions, streaks, XP, and estimated impact build over time.
+
+======================================================================
+18. ERROR, LOADING, AND EMPTY STATES
+======================================================================
+
+Every async page must have:
+- loading feedback
+- meaningful error message
+- retry where appropriate
+
+Examples:
+
+No assessment:
+"You have not completed your climate assessment yet."
+CTA: Start Assessment
+
+No completed actions:
+"Your first action is waiting."
+CTA: Explore Actions
+
+No active challenge:
+"Ready for a bigger goal?"
+CTA: Browse Challenges
+
+Backend unavailable:
+"EcoPulse is having trouble reaching the climate engine. Please try again."
+
+Do not expose raw backend exceptions to users.
+
+======================================================================
+19. SEED DATA
+======================================================================
+
+Seed at least:
+- 16 climate actions, 4 per category.
+- 3 challenges.
+
+Example TRANSPORT actions:
+1. Walk or cycle one short journey.
+2. Use public transport for one trip.
+3. Combine multiple errands into one journey.
+4. Share a ride when public transport is not practical.
+
+ENERGY:
+1. Turn off unused lights and devices.
+2. Reduce air-conditioning use for one hour.
+3. Use energy-saving settings on devices.
+4. Use natural light/ventilation when practical.
+
+FOOD:
+1. Choose one lower-impact meal.
+2. Plan a meal to avoid food waste.
+3. Use leftovers instead of discarding food.
+4. Choose a local/seasonal option.
+
+WASTE:
+1. Carry a reusable bottle.
+2. Avoid one single-use item.
+3. Separate recyclable waste where facilities exist.
+4. Reuse or repair one item instead of replacing it.
+
+Challenges:
+1. 7-Day Low Carbon Starter.
+2. Plastic-Lite Week.
+3. Smarter Travel Challenge.
+
+Seed data must be believable and useful.
+Do not present estimates as verified science unless supported.
+
+======================================================================
+20. TESTING STRATEGY
+======================================================================
+
+BACKEND TESTS - priority
+
+Use pytest if time permits.
+
+Must test business logic:
+1. Assessment scores map correctly.
+2. Overall score calculated correctly.
+3. Lowest category detected.
+4. Invalid assessment option rejected.
+5. Recommendation engine prioritizes weak category.
+6. Password hashing/verification works.
+7. Unauthorized protected route returns 401.
+8. Action completion awards XP once.
+9. Repeated completion cannot duplicate XP.
+10. Streak logic:
+   - first action
+   - same day
+   - consecutive day
+   - broken streak
+
+API smoke tests:
+- health
+- register
+- login
+- create assessment
+- recommended actions
+- start action
+- complete action
+- progress summary
+
+FRONTEND
+Minimum manual checks:
+- mobile and desktop
+- register/login
+- assessment navigation
+- result display
+- action completion
+- dashboard updates without manual database edits
+- logout
+- protected page behavior
+- refresh behavior
+
+Do not chase 100% test coverage before the app works.
+
+======================================================================
+21. DEVELOPMENT PHASES
+======================================================================
+
+PHASE 0 - FOUNDATION
+Goal:
+Both applications boot successfully and database connection exists.
+
+Tasks:
+- create monorepo structure
+- initialize Next.js
+- initialize FastAPI
+- Docker Compose PostgreSQL
+- environment templates
+- database connection
+- FastAPI health route
+- CORS
+- Git ignore
+- README boot instructions
+
+Definition of done:
+- npm run dev starts frontend
+- uvicorn starts backend
+- GET /health returns success
+- backend connects to PostgreSQL
+
+PHASE 1 - DATABASE + AUTH
+Goal:
+A real user can register/login.
+
+Tasks:
+- SQLAlchemy Base/session
+- User model
+- Alembic setup
+- migration
+- auth schemas
+- Argon2 hash
+- JWT
+- register
+- login
+- /auth/me
+- frontend login/register pages
+- auth client/store
+- route protection
+
+Definition of done:
+- new account persists in DB
+- duplicate email rejected
+- login returns usable auth token
+- protected backend route works
+- frontend knows current user
+
+PHASE 2 - ASSESSMENT ENGINE
+Goal:
+User completes assessment and receives a real backend-calculated result.
+
+Tasks:
+- question definitions
+- validation
+- scoring engine
+- Assessment model/migration
+- POST assessment
+- latest assessment route
+- recommendation engine skeleton
+- frontend multi-step assessment
+- result page
+
+Definition of done:
+- answers sent to FastAPI
+- FastAPI validates and calculates scores
+- result is persisted
+- refresh does not lose assessment
+- result page shows data returned by backend
+
+PHASE 3 - CLIMATE ACTIONS
+Goal:
+Personalized recommendations become actionable.
+
+Tasks:
+- ClimateAction model
+- UserAction model
+- migration
+- seed actions
+- actions list API
+- recommendations endpoint
+- start action
+- complete action
+- XP award
+- estimated impact award
+- frontend action cards
+- filters
+- completion UI
+
+Definition of done:
+- action state persists
+- XP changes on backend
+- duplicate XP blocked
+- recommendations depend on assessment
+
+PHASE 4 - DASHBOARD
+Goal:
+Create the visual centerpiece of EcoPulse.
+
+Tasks:
+- progress summary service
+- summary endpoint
+- dashboard page
+- score ring/card
+- XP
+- streak
+- completed actions
+- estimated CO2e
+- category bars
+- recommended action
+- recent activity
+- responsive layout
+
+Definition of done:
+Dashboard values are database-backed and change after user actions.
+
+PHASE 5 - CHALLENGES
+Goal:
+Add a stronger retention loop.
+
+Tasks:
+- Challenge
+- ChallengeAction
+- UserChallenge
+- migrations
+- seed challenges
+- join API
+- progress logic
+- challenges UI
+- progress bar
+- reward completion
+
+Definition of done:
+A logged-in user can join and progress through a challenge using backend state.
+
+PHASE 6 - PROGRESS + VISUALIZATION
+Goal:
+Make progress satisfying and easy to understand.
+
+Tasks:
+- monthly progress API
+- Recharts
+- category visualization
+- progress page
+- assessment comparison
+- improved activity history
+
+Definition of done:
+Charts use API data and survive refresh.
+
+PHASE 7 - LANDING + POLISH
+Goal:
+Make the project look competition-ready.
+
+Tasks:
+- premium landing page
+- refined navigation
+- visual consistency
+- responsive testing
+- motion
+- loading states
+- error states
+- empty states
+- accessibility pass
+- microcopy
+- favicon/metadata
+- Open Graph metadata if time
+
+Definition of done:
+The site feels like one coherent product.
+
+PHASE 8 - DEPLOYMENT
+Goal:
+Live end-to-end environment.
+
+Tasks:
+- Neon PostgreSQL
+- production migration
+- seed production DB
+- deploy FastAPI
+- set backend env
+- verify CORS
+- deploy frontend to Vercel
+- set frontend API URL
+- smoke test production
+
+Definition of done:
+A fresh user can:
+register -> assess -> get result -> start/complete action -> see dashboard update.
+
+PHASE 9 - SUBMISSION PACKAGE
+Goal:
+Make judging frictionless.
+
+Tasks:
+- clean Git status
+- README
+- architecture diagram
+- tech stack section
+- setup steps
+- screenshots
+- 3-page technical documentation
+- demo account if useful
+- demo script
+- demo video
+- live URL
+- GitHub URL
+
+Demo video flow:
+1. Landing page.
+2. Register/login.
+3. Assessment.
+4. Results.
+5. Recommended action.
+6. Start/complete action.
+7. Dashboard visibly updates.
+8. Challenge.
+9. Progress chart.
+10. Very short architecture explanation.
+
+PHASE 10 - BONUS/STRETCH SLOT
+Only after Phase 9 is safe.
+
+Possible easy bonus feature:
+- badge system
+- daily action
+- leaderboard
+- learn mini-page
+- simple climate tips endpoint
+- export progress card
+- shareable result card
+
+Do not risk the stable build for a bonus.
+
+======================================================================
+22. IMMEDIATE BUILD ORDER FOR A SHORT DEADLINE
+======================================================================
+
+If time is extremely limited, prioritize in this exact order:
+
+P0:
+1. Repo foundation.
+2. PostgreSQL.
+3. Backend health.
+4. Register/login.
+5. Assessment.
+6. Score calculation.
+7. Save assessment.
+8. Results page.
+9. Seed climate actions.
+10. Recommendations.
+11. Complete action.
+12. Dashboard.
+
+P1:
+13. XP.
+14. Streak.
+15. Challenges.
+16. Progress chart.
+17. Landing polish.
+18. Deployment.
+
+P2:
+19. Badges.
+20. Learn page.
+21. Additional animations.
+22. Extra analytics.
+
+Never build P2 while a P0 flow is broken.
+
+======================================================================
+23. ENVIRONMENT VARIABLES
+======================================================================
+
+ROOT:
+No secrets required.
+
+backend/.env.example
+
+DATABASE_URL=postgresql+psycopg://ecopulse:ecopulse@localhost:5432/ecopulse
+JWT_SECRET=change-me
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+FRONTEND_ORIGIN=http://localhost:3000
+ENVIRONMENT=development
+
+frontend/.env.local.example
+
+NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+
+Production:
+- set real DATABASE_URL
+- strong random JWT_SECRET
+- FRONTEND_ORIGIN = production Vercel URL
+- NEXT_PUBLIC_API_URL = production backend /api/v1 URL
+
+Never commit real .env values.
+
+======================================================================
+24. LOCAL DOCKER COMPOSE DATABASE
+======================================================================
+
+Recommended root docker-compose.yml:
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: ecopulse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecopulse
+      POSTGRES_USER: ecopulse
+      POSTGRES_PASSWORD: ecopulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecopulse_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ecopulse_postgres_data:
+
+This is for local development only.
+Production DB credentials come from the hosted PostgreSQL provider.
+
+======================================================================
+25. BACKEND IMPLEMENTATION CONVENTIONS
+======================================================================
+
+FastAPI:
+- prefix routes with /api/v1
+- use APIRouter
+- keep endpoints thin
+- move business rules to services
+- Pydantic schemas separate from ORM models
+- use dependency for DB session
+- use dependency for current authenticated user
+- keep config in pydantic-settings
+- use SQLAlchemy 2-style code
+
+Example responsibility split:
+
+route:
+- parse request
+- call service
+- return response
+
+service:
+- business rules
+- database operations
+- score calculations
+- XP rules
+
+model:
+- persistence definition
+
+schema:
+- request/response validation
+
+Avoid:
+- giant main.py
+- SQL in route functions
+- password logic in frontend
+- duplicated scoring logic
+- global mutable DB session
+- broad except Exception that hides bugs
+
+======================================================================
+26. FRONTEND IMPLEMENTATION CONVENTIONS
+======================================================================
+
+Next.js App Router.
+
+Rules:
+- TypeScript strict.
+- Small composable components.
+- Do not put the entire dashboard in one component.
+- Centralize API base URL.
+- Centralize auth token handling.
+- Use consistent loading/error components.
+- Avoid unnecessary global state.
+- Server Components may be used for static/marketing content.
+- Authenticated interactive screens can use client components where practical.
+- Keep form validation readable.
+- Use semantic HTML.
+- Keep route paths consistent.
+
+API helper:
+Create src/lib/api.ts.
+
+Responsibilities:
+- build URL
+- attach Authorization header when token exists
+- parse JSON
+- throw normalized errors
+
+Do not scatter fetch boilerplate across every component if avoidable.
+
+======================================================================
+27. API RESPONSE STYLE
+======================================================================
+
+Keep response shapes predictable.
+
+Success:
+{
+  "data": ...
+}
+
+OR direct typed resources if simpler.
+
+Errors:
+Use FastAPI standard detail or a consistent custom shape.
+
+Do not mix five unrelated formats.
+
+Dates:
+ISO 8601 strings.
+
+Enums:
+lowercase stable strings.
+
+Decimals:
+Return as number where serialization is safe for displayed values.
+
+======================================================================
+28. PRODUCT METRICS AND DASHBOARD DEFINITIONS
+======================================================================
+
+Climate Action Score:
+Latest assessment overall score.
+
+Score change:
+Latest score - previous assessment score.
+If only one assessment, display no change.
+
+Actions completed:
+Count completed user_actions.
+
+XP:
+users.xp.
+
+Current streak:
+users.current_streak.
+
+Estimated CO2e avoided:
+Sum completed user_actions estimated award.
+
+Category scores:
+Latest assessment four category values.
+
+Recent activity:
+Latest 5 completed/started actions and challenge events.
+
+Monthly chart:
+Aggregate completed actions or estimated impact by day/week.
+Choose a visualization with enough data to be meaningful.
+If little data exists, show a useful empty state instead of a sad flat graph.
+
+======================================================================
+29. DATA INTEGRITY RULES
+======================================================================
+
+1. Email unique at DB level.
+2. Foreign keys enforced.
+3. XP cannot be awarded twice for the same completion.
+4. User cannot complete another user's UserAction.
+5. Challenge reward awarded once.
+6. Assessment scores constrained logically by application validation.
+7. Unknown assessment answers rejected.
+8. Deleted/deactivated seed action should not break historical user actions.
+9. Timestamps created by backend.
+10. Never trust frontend-sent XP or score values.
+
+======================================================================
+30. UX DETAILS THAT MAKE THE PROJECT FEEL HIGH-END
+======================================================================
+
+Assessment:
+- smooth step transition
+- progress line
+- large answer buttons
+- keyboard accessible
+- back button
+- no overwhelming form page
+
+Results:
+- animated score reveal
+- category bars
+- "Your biggest opportunity" card
+- recommended next action
+
+Action completion:
+- immediate confirmation
+- subtle XP animation
+- dashboard numbers update
+- no fake confetti everywhere
+
+Dashboard:
+- strong hierarchy
+- not too many cards
+- primary metric: Climate Action Score
+- secondary: streak, XP, actions, estimate
+- one next action prominently visible
+
+Challenges:
+- clear duration and reward
+- obvious current progress
+
+Copy:
+- encouraging
+- non-judgmental
+- concise
+- action-oriented
+
+======================================================================
+31. README REQUIREMENTS
+======================================================================
+
+README should include:
+
+1. Product name + one-line summary.
+2. SDG 13.
+3. Problem.
+4. Solution.
+5. Key features.
+6. Architecture diagram.
+7. Tech stack.
+8. Screenshots.
+9. Repository structure.
+10. Local prerequisites.
+11. Frontend setup.
+12. Backend setup.
+13. Database setup.
+14. Alembic migration commands.
+15. Seed command.
+16. Environment variables.
+17. Development URLs.
+18. Production link.
+19. Demo video link if available.
+20. Known limitations.
+21. Future improvements.
+
+Keep README polished enough that a judge can understand the app without opening source files.
+
+======================================================================
+32. TECHNICAL DOCUMENTATION, MAXIMUM 3 PAGES
+======================================================================
+
+The final technical document should fit the competition requirement.
+
+Suggested structure:
+
+PAGE 1
+- Title.
+- SDG 13.
+- Problem statement.
+- Solution.
+- Target users.
+- Key features.
+
+PAGE 2
+- Architecture diagram.
+- Tech stack.
+- Database summary.
+- Core climate scoring/recommendation logic.
+
+PAGE 3
+- Setup steps.
+- API/backend interaction example.
+- Deployment.
+- Limitations.
+- Future work.
+- GitHub/live links.
+
+Do not turn this into a long report.
+Judges should be able to scan it quickly.
+
+======================================================================
+33. DEMO VIDEO PLAN
+======================================================================
+
+Ideal duration:
+2 to 4 minutes unless competition guidance says otherwise.
+
+Narrative:
+"This is not a climate information site. EcoPulse turns awareness into personal action."
+
+Sequence:
+1. Show landing page.
+2. Register or use demo account.
+3. Start assessment.
+4. Complete a few representative questions.
+5. Show calculated result.
+6. Explain four categories briefly.
+7. Show recommendation based on weakest category.
+8. Start and complete action.
+9. Show XP/streak/impact update.
+10. Show challenge.
+11. Show progress visualization.
+12. End with architecture slide/overlay:
+   Next.js -> FastAPI -> PostgreSQL.
+13. Show live URL and GitHub.
+
+Avoid:
+- long typing
+- terminal troubleshooting
+- scrolling through source code
+- explaining every field
+
+======================================================================
+34. DEPLOYMENT PLAN
+======================================================================
+
+DATABASE
+Provider:
+Neon PostgreSQL.
+
+Steps:
+- create project
+- get connection string
+- set backend DATABASE_URL
+- run Alembic migrations
+- run seed
+
+BACKEND
+Provider:
+Render or equivalent free Python service.
+
+Build command example:
+pip install -r requirements.txt
+
+Start command:
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+Set:
+DATABASE_URL
+JWT_SECRET
+JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES
+FRONTEND_ORIGIN
+ENVIRONMENT=production
+
+FRONTEND
+Provider:
+Vercel.
+
+Root directory:
+frontend
+
+Set:
+NEXT_PUBLIC_API_URL=https://<backend>/api/v1
+
+CORS:
+Backend allow production frontend URL.
+
+Production smoke test:
+- register fresh user
+- login
+- assessment
+- result
+- recommended action
+- start
+- complete
+- dashboard
+- challenge
+- refresh pages
+- mobile viewport
+
+======================================================================
+35. GIT STRATEGY
+======================================================================
+
+Keep it simple.
+
+Branch options:
+Option A: main only, frequent commits.
+Option B:
+- main = stable
+- dev = active work
+
+Given deadline, main + focused commits is acceptable.
+
+Commit examples:
+chore: initialize frontend and backend
+feat(auth): add registration and login
+feat(assessment): implement climate scoring
+feat(actions): add personalized recommendations
+feat(dashboard): add progress summary
+feat(challenges): add challenge tracking
+style: polish responsive dashboard
+docs: add setup and demo instructions
+
+Before submission:
+- no secrets
+- no giant generated files
+- no broken experimental code
+- clean README
+- production URLs correct
+
+======================================================================
+36. DEFINITION OF MVP COMPLETE
+======================================================================
+
+The MVP is complete only when a brand-new user can do this in production:
+
+1. Open live site.
+2. Register.
+3. Log in/current user is recognized.
+4. Complete climate assessment.
+5. Receive backend-generated score.
+6. See scores persisted after refresh.
+7. Receive personalized recommendation.
+8. Start an action.
+9. Complete the action.
+10. XP updates.
+11. Streak updates appropriately.
+12. Estimated impact updates if action has an estimate.
+13. Dashboard reflects database state.
+14. Join a challenge.
+15. See challenge progress.
+16. View progress visualization.
+17. Log out.
+18. Protected data is inaccessible without auth.
+
+If any of steps 1 to 13 are broken, do not spend time on stretch features.
+
+======================================================================
+37. KNOWN LIMITATIONS TO STATE HONESTLY
+======================================================================
+
+1. Climate Action Score is an educational behavior score, not a certified carbon footprint.
+2. CO2e values are estimates and may not represent each user's exact local situation.
+3. Recommendation engine is rule-based.
+4. The initial action library is curated rather than crowdsourced.
+5. No verification that a user physically completed an action.
+6. Free hosting may introduce cold starts.
+7. Geographic personalization is limited in MVP.
+
+These are acceptable limitations.
+Do not hide them.
+Good technical projects know where their model stops.
+
+======================================================================
+38. FUTURE ROADMAP AFTER THE COMPETITION
+======================================================================
+
+V2
+- more robust emissions methodology
+- localized Sri Lankan data
+- badges
+- better assessment history
+- smarter challenge system
+- email verification
+- secure refresh-token/cookie auth
+
+V3
+- local climate events
+- organization/community accounts
+- public community impact
+- geospatial map
+- richer education section
+- multilingual support
+
+V4
+- AI assistant grounded in trusted climate sources
+- personalized recommendations using richer context
+- verified environmental datasets
+- optional ML ranking of actions
+- admin analytics
+
+======================================================================
+39. CODING QUALITY CHECKLIST FOR CODEX
+======================================================================
+
+Before marking a task complete, Codex should verify:
+
+[ ] code compiles
+[ ] frontend lint passes
+[ ] backend starts
+[ ] migration applies
+[ ] endpoint is callable
+[ ] validation exists
+[ ] authorization exists where needed
+[ ] no secret in source
+[ ] no duplicate business logic
+[ ] UI has loading/error state
+[ ] feature persists after refresh
+[ ] mobile layout is not broken
+[ ] README/API docs updated when relevant
+
+======================================================================
+40. CODEX TASK EXECUTION FORMAT
+======================================================================
+
+For each implementation phase, Codex should:
+
+1. State the phase being implemented.
+2. Briefly list files to create/change.
+3. Implement smallest working vertical slice.
+4. Run/describe relevant validation:
+   - lint
+   - type check
+   - backend import/start
+   - tests
+5. Report:
+   - what works
+   - commands to run
+   - environment changes
+   - remaining items
+6. Do not automatically begin a large next phase if current phase has known errors.
+
+Preferred task style:
+"Implement Phase 2 assessment end-to-end according to PROJECT_PLAN.txt. Do not begin Phase 3. Preserve the existing stack. Run lint/tests after changes."
+
+======================================================================
+41. DEVELOPER INITIALIZATION GUIDE
+======================================================================
+
+PREREQUISITES
+
+Recommended:
+- Git
+- Node.js LTS
+- npm
+- Python 3.12+ or currently supported Python
+- Docker + Docker Compose
+- PostgreSQL client optional
+- VS Code/Codex
+
+CREATE ROOT
+
+mkdir ecopulse
+cd ecopulse
+git init
+
+CREATE NEXT.JS FRONTEND
+
+npx create-next-app@latest frontend \
+  --typescript \
+  --tailwind \
+  --eslint \
+  --app \
+  --src-dir \
+  --import-alias "@/*" \
+  --use-npm
+
+cd frontend
+
+Install project packages:
+
+npm install framer-motion recharts lucide-react zod react-hook-form @hookform/resolvers
+
+Initialize shadcn/ui:
+
+npx shadcn@latest init
+
+Suggested initial shadcn components:
+
+npx shadcn@latest add button card input label progress badge tabs dialog dropdown-menu separator skeleton tooltip
+
+Return root:
+
+cd ..
+
+CREATE FASTAPI BACKEND
+
+mkdir backend
+cd backend
+
+python3 -m venv .venv
+
+Linux/macOS:
+source .venv/bin/activate
+
+Windows PowerShell:
+.venv\Scripts\Activate.ps1
+
+Install backend:
+
+pip install fastapi "uvicorn[standard]" sqlalchemy "psycopg[binary]" alembic pydantic-settings PyJWT "pwdlib[argon2]" python-multipart email-validator pytest httpx
+
+Freeze:
+
+pip freeze > requirements.txt
+
+Create folders:
+
+mkdir -p app/core app/models app/schemas app/api/routes app/services app/seed/data tests
+
+On systems where mkdir -p is unavailable, create equivalent folders manually.
+
+Create:
+app/__init__.py
+app/core/__init__.py
+app/models/__init__.py
+app/schemas/__init__.py
+app/api/__init__.py
+app/api/routes/__init__.py
+app/services/__init__.py
+
+Initialize Alembic:
+
+alembic init alembic
+
+Return root:
+
+cd ..
+
+CREATE ROOT docker-compose.yml
+Use the PostgreSQL Compose configuration from Section 24.
+
+START DATABASE
+
+docker compose up -d
+
+Check:
+
+docker compose ps
+
+BACKEND ENV
+
+Copy/create:
+backend/.env
+
+DATABASE_URL=postgresql+psycopg://ecopulse:ecopulse@localhost:5432/ecopulse
+JWT_SECRET=<generate-a-long-random-secret>
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+FRONTEND_ORIGIN=http://localhost:3000
+ENVIRONMENT=development
+
+Generate secret example:
+
+python3 -c "import secrets; print(secrets.token_urlsafe(48))"
+
+FRONTEND ENV
+
+frontend/.env.local
+
+NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+
+INITIAL BACKEND MINIMUM
+
+Create:
+backend/app/main.py
+
+It should:
+- instantiate FastAPI
+- configure CORS from settings
+- include /health
+- later include v1 routers
+
+Run backend:
+
+cd backend
+source .venv/bin/activate
+uvicorn app.main:app --reload --port 8000
+
+Expected:
+http://localhost:8000
+http://localhost:8000/docs
+http://localhost:8000/health
+
+RUN FRONTEND
+
+Separate terminal:
+
+cd frontend
+npm run dev
+
+Expected:
+http://localhost:3000
+
+INITIAL GITIGNORE
+
+Root .gitignore should include at least:
+
+# env
+.env
+.env.*
+!.env.example
+frontend/.env.local
+backend/.env
+
+# frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# python
+backend/.venv/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+
+# misc
+*.log
+
+Do not ignore migration files.
+
+INITIAL README
+
+Before feature work, README only needs:
+- name
+- one-line description
+- stack
+- frontend start command
+- backend start command
+- database start command
+
+Expand later.
+
+FIRST COMMIT
+
+git add .
+git commit -m "chore: initialize EcoPulse full-stack project"
+
+======================================================================
+42. FIRST INSTRUCTION TO GIVE CODEX
+======================================================================
+
+Recommended first prompt:
+
+"Read PROJECT_PLAN.txt completely and treat it as the source of truth for this repository.
+
+Implement PHASE 0 only.
+
+Requirements:
+- Keep the monorepo structure with frontend/ and backend/.
+- Next.js frontend must remain separate from FastAPI.
+- FastAPI owns all database access.
+- PostgreSQL runs locally through docker-compose.
+- Configure backend settings, SQLAlchemy database connection, FastAPI CORS, and GET /health.
+- Create .env.example files, not real secrets.
+- Make sure frontend and backend both start.
+- Do not implement authentication or later phases yet.
+- Do not change the agreed tech stack.
+- After implementation, run appropriate lint/import/start checks and tell me exactly what commands I should run."
+
+After Phase 0:
+"Implement PHASE 1 from PROJECT_PLAN.txt only. Build database-backed registration/login end-to-end. Do not start the assessment phase until auth works."
+
+Then continue one phase at a time.
+
+======================================================================
+43. FINAL PRODUCT PRINCIPLES
+======================================================================
+
+1. Useful beats huge.
+2. Working beats theoretical.
+3. Personalized beats generic.
+4. Transparent estimates beat fake precision.
+5. Backend logic must be real.
+6. Data must persist.
+7. Every major metric must have a clear source.
+8. A beautiful UI cannot hide broken flows.
+9. A complex architecture is only valuable if it remains understandable.
+10. The demo path must work every time.
+11. Keep the app respectful and encouraging.
+12. Build something that feels like a product, not an assignment.
+
+END OF MASTER PLAN

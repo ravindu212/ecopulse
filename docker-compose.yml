@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: ecopulse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecopulse
+      POSTGRES_USER: ecopulse
+      POSTGRES_PASSWORD: ecopulse
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - ecopulse_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ecopulse_postgres_data:
