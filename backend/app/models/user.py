@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import Date, DateTime, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -32,3 +32,4 @@ class User(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+    assessments: Mapped[list["Assessment"]] = relationship(back_populates="user")

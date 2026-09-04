@@ -4,10 +4,13 @@ from app.schemas.auth import (
     RegistrationRequest,
     TokenResponse,
 )
+from app.schemas.assessment import AssessmentResult, AssessmentSubmission
 
 __all__ = [
     "AuthenticatedUser",
     "LoginRequest",
     "RegistrationRequest",
     "TokenResponse",
+    "AssessmentResult",
+    "AssessmentSubmission",
 ]

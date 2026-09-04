@@ -41,7 +41,8 @@ Apply the database migrations before using authentication endpoints:
 alembic upgrade head
 ```
 
-The initial migration creates the `users` table used by registration and login.
+The migrations create the `users` table used by registration and login, followed by
+the `assessments` table used by the authenticated Climate Action Score flow.
 
 ### Frontend
 
