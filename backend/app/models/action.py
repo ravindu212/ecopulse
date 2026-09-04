@@ -26,6 +26,7 @@ class ClimateAction(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
     user_actions: Mapped[list["UserAction"]] = relationship(back_populates="action")
+    challenge_actions: Mapped[list["ChallengeAction"]] = relationship(back_populates="action")
 
 
 class UserAction(Base):
