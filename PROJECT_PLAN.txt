@@ -1653,7 +1653,7 @@ No secrets required.
 
 backend/.env.example
 
-DATABASE_URL=postgresql+psycopg://ecopulse:ecopulse@localhost:5432/ecopulse
+DATABASE_URL=postgresql+psycopg://ecopulse:ecopulse@localhost:5434/ecopulse
 JWT_SECRET=change-me
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
@@ -1688,7 +1688,7 @@ services:
       POSTGRES_USER: ecopulse
       POSTGRES_PASSWORD: ecopulse
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5434:5432"
     volumes:
       - ecopulse_postgres_data:/var/lib/postgresql/data
 
@@ -2298,7 +2298,7 @@ BACKEND ENV
 Copy/create:
 backend/.env
 
-DATABASE_URL=postgresql+psycopg://ecopulse:ecopulse@localhost:5432/ecopulse
+DATABASE_URL=postgresql+psycopg://ecopulse:ecopulse@localhost:5434/ecopulse
 JWT_SECRET=<generate-a-long-random-secret>
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
