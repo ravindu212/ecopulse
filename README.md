@@ -35,6 +35,14 @@ uvicorn app.main:app --reload
 The API runs at `http://localhost:8000`. Confirm it with
 `http://localhost:8000/health`.
 
+Apply the database migrations before using authentication endpoints:
+
+```bash
+alembic upgrade head
+```
+
+The initial migration creates the `users` table used by registration and login.
+
 ### Frontend
 
 In a second terminal:
