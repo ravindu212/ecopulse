@@ -1,5 +1,12 @@
 from app.services.assessment_service import QUESTIONS
 
+def test_action_list_filters(client):
+ all_actions=client.get("/api/v1/actions").json(); assert len(all_actions)==16
+ sample=all_actions[0]
+ filtered=client.get("/api/v1/actions",params={"category":sample["category"],"difficulty":sample["difficulty"],"impact_level":sample["impact_level"]})
+ assert filtered.status_code==200 and filtered.json()
+ assert all(action["category"]==sample["category"] and action["difficulty"]==sample["difficulty"] and action["impact_level"]==sample["impact_level"] for action in filtered.json())
+
 def test_action_completion_awards_xp_once_and_is_user_scoped(client):
  r=client.post("/api/v1/auth/register",json={"name":"Action User","email":"actions@example.com","password":"correct-horse-battery-staple"}); token=r.json()["access_token"]; headers={"Authorization":f"Bearer {token}"}
  answers={q.id:q.options[-1].id for q in QUESTIONS}; assert client.post("/api/v1/assessment",json={"answers":answers},headers=headers).status_code==201

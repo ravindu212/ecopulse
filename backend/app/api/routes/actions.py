@@ -9,8 +9,16 @@ from app.schemas.action import ActionOut, CompletionOut, RecommendedAction, User
 
 router=APIRouter(prefix="/actions", tags=["actions"])
 @router.get("", response_model=list[ActionOut])
-def list_actions(db:DbSession, category:str|None=None):
- q=select(ClimateAction).where(ClimateAction.active.is_(True)); q=q.where(ClimateAction.category==category) if category else q
+def list_actions(
+ db:DbSession,
+ category:str|None=None,
+ difficulty:str|None=None,
+ impact_level:str|None=None,
+):
+ q=select(ClimateAction).where(ClimateAction.active.is_(True))
+ if category: q=q.where(ClimateAction.category==category)
+ if difficulty: q=q.where(ClimateAction.difficulty==difficulty)
+ if impact_level: q=q.where(ClimateAction.impact_level==impact_level)
  return list(db.scalars(q.order_by(ClimateAction.title)))
 @router.get("/recommended",response_model=list[RecommendedAction])
 def recommended(current_user:CurrentUser,db:DbSession):

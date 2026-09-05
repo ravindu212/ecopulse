@@ -23,7 +23,7 @@ def test_my_challenges_are_scoped_and_progress_is_derived(client):
  assert client.get('/api/v1/challenges/me',headers=second).json()[0]['completed_required_actions']==1
 
 def test_completion_is_idempotent_and_does_not_award_extra_xp(client,db_connection):
- _,headers=user(client,'completion@example.com');challenge=client.get('/api/v1/challenges').json()[0]
+ user_id,headers=user(client,'completion@example.com');challenge=client.get('/api/v1/challenges').json()[0]
  client.post(f"/api/v1/challenges/{challenge['id']}/join",headers=headers)
  for required in challenge['required_actions']:
   client.post(f"/api/v1/actions/{required['id']}/complete",headers=headers)
@@ -33,7 +33,7 @@ def test_completion_is_idempotent_and_does_not_award_extra_xp(client,db_connecti
  assert first['status']=='completed' and first['completed_at'] is not None and first['progress_percent']==100.0
  assert second['status']=='completed' and second['completed_at']==first['completed_at']
  assert client.get('/api/v1/auth/me',headers=headers).json()['xp']==xp_after_actions
- assert db_connection.execute(select(func.count(UserChallenge.id)).where(UserChallenge.challenge_id==challenge['id'])).scalar_one()==1
+ assert db_connection.execute(select(func.count(UserChallenge.id)).where(UserChallenge.challenge_id==challenge['id'],UserChallenge.user_id==user_id)).scalar_one()==1
 
 def test_completion_ignores_started_unrelated_and_other_user_actions(client):
  _,headers=user(client,'completion-scope@example.com');_,other_headers=user(client,'completion-scope-other@example.com')
