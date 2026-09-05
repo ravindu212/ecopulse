@@ -82,3 +82,90 @@ EONET reports natural events; feed inclusion does not establish that climate
 change caused an event. Climate attribution requires separate scientific
 analysis, and clients must retain that distinction and the supplied source
 attribution.
+
+## ENSO climate intelligence (Milestone B2)
+
+`GET /api/v1/climate/enso` is public and keeps three scientific concepts
+structurally separate:
+
+- `observations` contains NOAA CPC weekly OISST.v2.1 Niño 1+2, Niño 3,
+  Niño 3.4, and Niño 4 sea-surface temperature anomalies from the official
+  [`wksst9120.for`](https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for)
+  product. CPC updates this dataset weekly. Values are °C anomalies relative to
+  1991–2020 weekly climatological means; they are not absolute SST values.
+- `status` is the latest curated NOAA CPC issued analysis known to this code
+  version, preserving CPC's original alert wording and a conservative normalized
+  phase.
+- `outlook` contains concise, source-attributed NOAA CPC and WMO issued outlooks.
+  Only explicitly published probabilities are represented, including qualifiers
+  such as `greater_than` or `near`.
+
+Niño 3.4 is the area-averaged SST anomaly for 5°N–5°S and 170°W–120°W. The API
+returns its latest weekly observation and a bounded 52-week series for later
+visualization. Numeric observations use the existing six-hour TTL and real
+last-known-good cache: failed refreshes return cached data as `stale`, or empty
+observations as `unavailable` when no real cache exists. Issued bulletins instead
+carry issue and verification dates plus `latest_known_issue`; they do not age as
+though they were sensor readings.
+
+Bulletin prose is intentionally curated in
+`backend/app/services/climate/curated/enso_bulletins.py`. This avoids brittle HTML
+scraping and prevents observations, expert analysis, and forecasts from being
+collapsed into an EcoPulse-generated prediction. ENSO changes large-scale climate
+probabilities, not deterministic daily weather, and event strength alone does not
+determine impacts in a particular region. Curated records must be verified and
+updated when NOAA CPC or WMO issues a newer bulletin.
+
+## Global climate overview (Milestone B3)
+
+`GET /api/v1/climate/overview` composes the existing CO2, ENSO, and EONET
+services with a monthly global surface-temperature analysis and the latest
+verified Copernicus Climate Bulletin. It deliberately exposes separate component
+freshness and an availability summary rather than inventing an Earth or planet
+score. A failed provider therefore makes only its component `stale` or
+`unavailable`; other real observations and issued analyses remain usable.
+
+Global temperature uses NOAA NCEI's monthly global merged land–ocean
+NOAAGlobalTemp v6.1.0 ASCII series for 90°S–90°N. The product combines land
+surface air temperature with ERSST v6 ocean input and reports anomalies relative
+to the 1991–2020 monthly climatology. EcoPulse fetches the current versioned
+time-series file, returns the latest anomaly plus at most 60 chronological
+months, and caches successful responses for 12 hours. The configured filename
+contains NOAA's latest-data month and must be advanced when NCEI publishes a new
+operational snapshot.
+
+Ocean-temperature and Arctic/Antarctic sea-ice context comes from a versioned,
+curated Copernicus monthly record in
+`backend/app/services/climate/curated/climate_bulletins.py`. It is labeled as
+issued `analysis`, preserves reference/issue/verification dates, and is not
+treated as a live feed. The [WMO State of the Global Climate](https://wmo.int/publication-series/state-of-global-climate)
+is registered only as longer-term annual context; B3 does not ingest or present
+it as current monthly data.
+
+## Global seasonal climate outlook (Milestone B4A)
+
+`GET /api/v1/climate/outlook` exposes the latest verified, curated WMO Global
+Seasonal Climate Update as an issued multi-model `forecast`. It keeps the
+forecast-period bounds, oceanic drivers, surface-temperature outlook, and
+precipitation outlook separate. The endpoint is global seasonal guidance: it is
+neither an observation nor a deterministic daily or local weather prediction.
+
+Temperature and precipitation tendencies use tercile categories (`above_normal`,
+`near_normal`, and `below_normal`, with `equal_chances` or `unknown` where
+needed). Each category is relative to the baseline stored on that particular
+issue; the current SON 2026 record uses 1993–2009. Missing probability values
+remain null, while source wording such as `exact`, `greater_than`, or `near` is
+retained as a qualifier. A favoured category does not imply that every day will
+have that condition.
+
+The Indian Ocean Dipole is represented only as a WMO forecast driver, including
+its explicitly issued phase and value where available; B4A does not add an IOD
+observation feed. Curated issues live in
+`backend/app/services/climate/curated/seasonal_outlooks.py`. New verified issues
+can be appended with their own period and baseline; date-driven selection marks
+them `upcoming`, `current`, or `expired` without season-specific logic.
+
+`GET /api/v1/climate/overview` includes only a compact seasonal-outlook preview
+and remains available if no verified outlook record exists. For local decisions,
+use outlooks from the relevant WMO Regional Climate Centre or National
+Meteorological and Hydrological Service.
