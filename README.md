@@ -62,3 +62,23 @@ The frontend runs at `http://localhost:3000`.
 - Copy `backend/.env.example` to `backend/.env` for local API configuration.
 - Copy `frontend/.env.local.example` to `frontend/.env.local` for the frontend API URL.
 - Local environment files are ignored by Git. Do not commit secrets.
+
+## Climate data (Milestone B1)
+
+The public endpoints `GET /api/v1/climate/co2` and
+`GET /api/v1/climate/events` use, respectively, NOAA GML's machine-readable
+[Estimated Global Trend daily CO2 CSV](https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_trend_gl.csv)
+and the official [NASA EONET v3 events API](https://eonet.gsfc.nasa.gov/api/v3/events).
+No provider credentials are required.
+
+Successful NOAA responses are cached in-process for six hours; EONET responses
+are cached for 15 minutes per filter set. If a refresh fails after expiry, only
+the process's real last-known-good response is returned and it is explicitly
+marked `stale`. Without a valid cached response, the endpoint reports
+`unavailable` and returns no substitute measurements or events. Every response
+retains publisher, source URL, fetch time, freshness, and methodology metadata.
+
+EONET reports natural events; feed inclusion does not establish that climate
+change caused an event. Climate attribution requires separate scientific
+analysis, and clients must retain that distinction and the supplied source
+attribution.
