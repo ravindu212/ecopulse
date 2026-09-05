@@ -10,6 +10,7 @@ const appLinks = [
   ["Assessment", "/assessment"],
   ["Actions", "/actions"],
   ["Challenges", "/challenges"],
+  ["Progress", "/progress"],
 ] as const;
 
 export function AuthNav() {

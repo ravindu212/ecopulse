@@ -29,6 +29,44 @@ export type RegistrationInput = LoginInput & {
   name: string;
 };
 
+export type ProgressSummary = {
+  xp: number;
+  current_streak: number;
+  longest_streak: number;
+  completed_actions: number;
+  estimated_co2e_kg_avoided: number;
+};
+
+export type CategoryActivity = {
+  category: "transport" | "energy" | "food" | "waste";
+  completed_actions: number;
+  estimated_co2e_kg_avoided: number;
+};
+
+export type AssessmentHistoryItem = {
+  assessment_date: string;
+  overall_score: number;
+  transport_score: number;
+  energy_score: number;
+  food_score: number;
+  waste_score: number;
+};
+
+export type ProgressRecentActivity = {
+  title: string;
+  category: string;
+  completed_at: string;
+  xp_awarded: number;
+  estimated_co2e_kg_awarded: number;
+};
+
+export type ProgressData = {
+  summary: ProgressSummary;
+  category_activity: CategoryActivity[];
+  assessment_history: AssessmentHistoryItem[];
+  recent_activity: ProgressRecentActivity[];
+};
+
 export type ChallengeAction = {
   id: string;
   title: string;
@@ -115,4 +153,8 @@ export function register(input: RegistrationInput) {
 
 export function getCurrentUser() {
   return apiFetch<AuthenticatedUser>("/auth/me");
+}
+
+export function getProgress() {
+  return apiFetch<ProgressData>("/progress");
 }
