@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight, CloudRain, Snowflake, ThermometerSun, Waves, Wind } from "lucide-react";
-import type { CSSProperties } from "react";
 
 import { DataFreshness, DataTypeBadge, DataUnavailable, SourceBadge } from "@/components/climate/source-ui";
 import { formatClimateDate, formatProbability, formatSigned, humanize } from "@/lib/climate-format";
@@ -27,15 +26,10 @@ function HeroSignal({ label, value, detail, type }: { label: string; value: stri
 }
 
 function EventPoint({ event, index }: { event: EarthEvent; index: number }) {
-  const coordinates = event.latest_geometry?.coordinates;
-  const longitude = coordinates?.[0];
-  const latitude = coordinates?.[1];
-  const x = typeof longitude === "number" ? ((longitude + 180) / 360) * 100 : 12 + index * 16;
-  const y = typeof latitude === "number" ? ((90 - latitude) / 180) * 100 : 30 + (index % 2) * 28;
   const href = event.sources[0]?.url ?? event.eonet_url;
 
   return (
-    <li style={{ "--event-x": `${x}%`, "--event-y": `${y}%` } as CSSProperties}>
+    <li data-event-lane={index} data-home-event-card>
       <span aria-hidden="true" />
       <div>
         <small>{event.categories[0]?.title ?? "Earth event"}</small>
@@ -56,8 +50,9 @@ export function HomeDataStory({ overview, co2, enso, outlook, events }: HomeClim
 
   return (
     <>
-      <section className="home-hero" aria-labelledby="home-title">
-        <div className="home-hero-earth" aria-hidden="true">
+      <section className="home-hero" data-home-hero aria-labelledby="home-title">
+        <div className="home-hero-stage">
+          <div className="home-hero-earth" aria-hidden="true">
           <Image
             src="/media/home/nasa-blue-marble-alpha.webp"
             alt=""
@@ -66,22 +61,23 @@ export function HomeDataStory({ overview, co2, enso, outlook, events }: HomeClim
             sizes="(max-width: 768px) 100vw, 68vw"
             fetchPriority="high"
           />
-          <span className="home-orbit home-orbit-one" /><span className="home-orbit home-orbit-two" />
-        </div>
-        <div className="home-hero-copy">
-          <p className="home-kicker">Earth observatory · source-backed climate intelligence</p>
-          <h1 id="home-title"><span>The planet</span><span>is always</span><span>sending signals.</span></h1>
-          <p className="home-hero-deck">Read what the atmosphere, ocean, ice, and Pacific are showing now—then decide where your own climate pathway begins.</p>
-        </div>
-        <ol className="home-hero-signals" aria-label="Current climate signals">
-          <HeroSignal label="Atmospheric CO₂" value={currentCO2 ? `${currentCO2.value.toFixed(2)} ppm` : "Unavailable"} detail={currentCO2 ? formatClimateDate(currentCO2.observed_at) : "NOAA source unavailable"} type="estimate" />
-          <HeroSignal label="ENSO state" value={enso?.status.alert_status ?? "Unavailable"} detail={enso ? `Issued ${formatClimateDate(enso.status.issued_at)}` : "NOAA analysis unavailable"} type="analysis" />
-          <HeroSignal label="Global temperature" value={temperature?.latest_anomaly ? `${formatSigned(temperature.latest_anomaly.value, 3)} °C` : "Unavailable"} detail={temperature?.latest_anomaly?.period ?? "NOAA analysis unavailable"} type="analysis" />
-          <HeroSignal label="Seasonal outlook" value={outlook?.forecast_period.label ?? "Unavailable"} detail={outlook ? `Issued ${formatClimateDate(outlook.issue.issue_date)}` : "WMO forecast unavailable"} type="forecast" />
-        </ol>
-        <div className="home-hero-foot">
-          <p>{heroTimestamp ? `Briefing assembled ${formatClimateDate(heroTimestamp, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC` : "Briefing time unavailable"}</p>
-          <a href="#signals">Follow the signals <ArrowDown size={15} aria-hidden="true" /></a>
+            <span className="home-orbit home-orbit-one" /><span className="home-orbit home-orbit-two" />
+          </div>
+          <div className="home-hero-copy">
+            <p className="home-kicker">Earth observatory · source-backed climate intelligence</p>
+            <h1 id="home-title" data-home-heading><span>The planet</span><span>is always</span><span>sending signals.</span></h1>
+            <p className="home-hero-deck">Read what the atmosphere, ocean, ice, and Pacific are showing now—then decide where your own climate pathway begins.</p>
+          </div>
+          <ol className="home-hero-signals" aria-label="Current climate signals">
+            <HeroSignal label="Atmospheric CO₂" value={currentCO2 ? `${currentCO2.value.toFixed(2)} ppm` : "Unavailable"} detail={currentCO2 ? formatClimateDate(currentCO2.observed_at) : "NOAA source unavailable"} type="estimate" />
+            <HeroSignal label="ENSO state" value={enso?.status.alert_status ?? "Unavailable"} detail={enso ? `Issued ${formatClimateDate(enso.status.issued_at)}` : "NOAA analysis unavailable"} type="analysis" />
+            <HeroSignal label="Global temperature" value={temperature?.latest_anomaly ? `${formatSigned(temperature.latest_anomaly.value, 3)} °C` : "Unavailable"} detail={temperature?.latest_anomaly?.period ?? "NOAA analysis unavailable"} type="analysis" />
+            <HeroSignal label="Seasonal outlook" value={outlook?.forecast_period.label ?? "Unavailable"} detail={outlook ? `Issued ${formatClimateDate(outlook.issue.issue_date)}` : "WMO forecast unavailable"} type="forecast" />
+          </ol>
+          <div className="home-hero-foot">
+            <p>{heroTimestamp ? `Briefing assembled ${formatClimateDate(heroTimestamp, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC` : "Briefing time unavailable"}</p>
+            <a href="#signals">Follow the signals <ArrowDown size={15} aria-hidden="true" /></a>
+          </div>
         </div>
       </section>
 
@@ -103,32 +99,32 @@ export function HomeDataStory({ overview, co2, enso, outlook, events }: HomeClim
           <article className="home-signal-scene home-co2-scene" data-home-scene data-scene-key="co2">
             <header><span>02</span><p>Atmosphere · estimated global trend</p></header>
             <div className="home-scene-grid">
-              <div><DataTypeBadge type="estimate" /><h2>Carbon in the air has a timeline.</h2><p>Atmospheric CO₂ concentration is the amount present in the atmosphere. It is not the same measurement as annual emissions.</p></div>
-              {currentCO2 && co2.series.length ? <div className="home-data-focus"><strong>{currentCO2.value.toFixed(2)}</strong><span>parts per million</span><time dateTime={currentCO2.observed_at}>Observed {formatClimateDate(currentCO2.observed_at)}</time><SeriesPlot points={co2.series} tone="carbon" label="Recent atmospheric carbon dioxide series" summary={`The bounded NOAA series ends at ${currentCO2.value.toFixed(2)} ppm on ${formatClimateDate(currentCO2.observed_at)}.`} /><SourceBadge source={co2.source} compact /></div> : <DataUnavailable label="Atmospheric CO₂" detail="The story continues with other verified signals." />}
+              <div data-home-primary><DataTypeBadge type="estimate" /><h2 data-home-heading>Carbon in the air has a timeline.</h2><p>Atmospheric CO₂ concentration is the amount present in the atmosphere. It is not the same measurement as annual emissions.</p></div>
+              {currentCO2 && co2.series.length ? <div className="home-data-focus" data-home-primary><strong>{currentCO2.value.toFixed(2)}</strong><span>parts per million</span><time dateTime={currentCO2.observed_at}>Observed {formatClimateDate(currentCO2.observed_at)}</time><SeriesPlot points={co2.series} tone="carbon" label="Recent atmospheric carbon dioxide series" summary={`The bounded NOAA series ends at ${currentCO2.value.toFixed(2)} ppm on ${formatClimateDate(currentCO2.observed_at)}.`} /><SourceBadge source={co2.source} compact /></div> : <DataUnavailable label="Atmospheric CO₂" detail="The story continues with other verified signals." />}
             </div>
           </article>
 
           <article className="home-signal-scene home-temperature-scene" data-home-scene data-scene-key="temperature">
             <header><span>03</span><p>Global temperature · analysis</p></header>
             <div className="home-scene-grid">
-              <div><DataTypeBadge type="analysis" /><h2>Warmth is measured against a reference climate.</h2><p>A temperature anomaly is a difference from an average over a stated baseline—not Earth&apos;s absolute temperature.</p></div>
-              {temperature?.latest_anomaly && temperature.historical_series.length ? <div className="home-data-focus"><strong>{formatSigned(temperature.latest_anomaly.value, 3)}°C</strong><span>relative to {temperature.baseline}</span><time dateTime={temperature.latest_anomaly.observed_at}>{temperature.latest_anomaly.period}</time><SeriesPlot points={temperature.historical_series} tone="warm" label="Recent global surface temperature anomaly series" summary={`The latest NOAA monthly anomaly is ${formatSigned(temperature.latest_anomaly.value, 3)} degrees Celsius for ${temperature.latest_anomaly.period}.`} /><SourceBadge source={temperature.source} compact /></div> : <DataUnavailable label="Global temperature analysis" />}
+              <div data-home-primary><DataTypeBadge type="analysis" /><h2 data-home-heading>Warmth is measured against a reference climate.</h2><p>A temperature anomaly is a difference from an average over a stated baseline—not Earth&apos;s absolute temperature.</p></div>
+              {temperature?.latest_anomaly && temperature.historical_series.length ? <div className="home-data-focus" data-home-primary><strong>{formatSigned(temperature.latest_anomaly.value, 3)}°C</strong><span>relative to {temperature.baseline}</span><time dateTime={temperature.latest_anomaly.observed_at}>{temperature.latest_anomaly.period}</time><SeriesPlot points={temperature.historical_series} tone="warm" label="Recent global surface temperature anomaly series" summary={`The latest NOAA monthly anomaly is ${formatSigned(temperature.latest_anomaly.value, 3)} degrees Celsius for ${temperature.latest_anomaly.period}.`} /><SourceBadge source={temperature.source} compact /></div> : <DataUnavailable label="Global temperature analysis" />}
             </div>
           </article>
 
           <article className="home-signal-scene home-ocean-scene" data-home-scene data-scene-key="ocean">
             <header><span>04</span><p>Ocean · issued analysis</p></header>
             <div className="home-scene-grid">
-              <div><DataTypeBadge type="analysis" /><h2>The ocean stores and moves enormous amounts of heat.</h2><p>Ocean conditions shape weather, ecosystems, sea ice, and how warmth moves through the climate system.</p></div>
-              {overview ? <div className="home-ocean-reading"><Waves aria-hidden="true" /><small>{overview.ocean.reference_period}</small><h3>{overview.ocean.headline}</h3><p>{overview.ocean.summary}</p><SourceBadge source={overview.ocean.source} compact /></div> : <DataUnavailable label="Copernicus ocean context" />}
+              <div data-home-primary><DataTypeBadge type="analysis" /><h2 data-home-heading>The ocean stores and moves enormous amounts of heat.</h2><p>Ocean conditions shape weather, ecosystems, sea ice, and how warmth moves through the climate system.</p></div>
+              {overview ? <div className="home-ocean-reading" data-home-primary><Waves aria-hidden="true" /><small>{overview.ocean.reference_period}</small><h3>{overview.ocean.headline}</h3><p>{overview.ocean.summary}</p><SourceBadge source={overview.ocean.source} compact /></div> : <DataUnavailable label="Copernicus ocean context" />}
             </div>
           </article>
 
           <article className="home-signal-scene home-enso-scene" data-home-scene data-scene-key="enso">
             <header><span>05</span><p>Pacific · observation → analysis → outlook</p></header>
             <div className="home-scene-grid">
-              <div><h2>The tropical Pacific changes the rhythm.</h2><p>ENSO is a recurring ocean–atmosphere pattern. The Niño 3.4 index describes observed sea-surface temperature departures in a central Pacific region.</p></div>
-              {enso ? <div className="home-enso-stack">
+              <div data-home-primary><h2 data-home-heading>The tropical Pacific changes the rhythm.</h2><p>ENSO is a recurring ocean–atmosphere pattern. The Niño 3.4 index describes observed sea-surface temperature departures in a central Pacific region.</p></div>
+              {enso ? <div className="home-enso-stack" data-home-primary>
                 <div className="home-evidence home-evidence-observed"><DataTypeBadge type="observation" /><strong>{currentNino ? `${formatSigned(currentNino.value)} °C` : "Unavailable"}</strong><p>Niño 3.4 · {currentNino?.period ?? "No current observation"}</p><DataFreshness freshness={enso.observation_freshness} /></div>
                 <div className="home-evidence home-evidence-analysis"><DataTypeBadge type="analysis" /><strong>{enso.status.alert_status}</strong><p>{enso.status.headline}</p><time dateTime={enso.status.issued_at}>Issued {formatClimateDate(enso.status.issued_at)}</time></div>
                 <div className="home-evidence home-evidence-forecast"><DataTypeBadge type="forecast" /><strong>{enso.outlook.wmo.headline}</strong><p>{enso.outlook.wmo.summary}</p></div>
@@ -141,8 +137,8 @@ export function HomeDataStory({ overview, co2, enso, outlook, events }: HomeClim
           <article className="home-signal-scene home-outlook-scene" data-home-scene data-scene-key="outlook">
             <header><span>06</span><p>What we are watching next · forecast</p></header>
             <div className="home-scene-grid">
-              <div><DataTypeBadge type="forecast" /><h2>Forecasts describe shifts in probability.</h2><p>Seasonal outlooks summarize broad conditions over months. They are not daily weather predictions for a specific place.</p></div>
-              {outlook ? <div className="home-outlook-reading"><h3>{outlook.forecast_period.label}</h3><p>Issued {formatClimateDate(outlook.issue.issue_date)} · baseline {outlook.baseline}</p><div className="home-driver-pair"><div><Wind aria-hidden="true" /><small>ENSO driver</small><strong>{humanize(outlook.oceanic_drivers.enso.phase)}</strong><p>{outlook.oceanic_drivers.enso.status}</p></div><div><Waves aria-hidden="true" /><small>IOD driver</small><strong>{outlook.oceanic_drivers.iod ? humanize(outlook.oceanic_drivers.iod.phase) : "Not supplied"}</strong><p>{outlook.oceanic_drivers.iod?.status ?? "No verified IOD field in this issue."}</p></div></div><div className="home-tendency-pair"><div><ThermometerSun aria-hidden="true" /><span>Temperature</span><strong>{outlook.temperature.headline}</strong>{outlook.temperature.tendencies[0] ? <em>{formatProbability(outlook.temperature.tendencies[0].probability, outlook.temperature.tendencies[0].qualifier)}</em> : null}</div><div><CloudRain aria-hidden="true" /><span>Precipitation</span><strong>{outlook.precipitation.headline}</strong>{outlook.precipitation.tendencies[0] ? <em>{formatProbability(outlook.precipitation.tendencies[0].probability, outlook.precipitation.tendencies[0].qualifier)}</em> : null}</div></div><SourceBadge source={outlook.sources[0]} compact /></div> : <DataUnavailable label="WMO seasonal outlook" detail="Observed chapters remain available." />}
+              <div data-home-primary><DataTypeBadge type="forecast" /><h2 data-home-heading>Forecasts describe shifts in probability.</h2><p>Seasonal outlooks summarize broad conditions over months. They are not daily weather predictions for a specific place.</p></div>
+              {outlook ? <div className="home-outlook-reading" data-home-primary><h3>{outlook.forecast_period.label}</h3><p>Issued {formatClimateDate(outlook.issue.issue_date)} · baseline {outlook.baseline}</p><div className="home-driver-pair"><div><Wind aria-hidden="true" /><small>ENSO driver</small><strong>{humanize(outlook.oceanic_drivers.enso.phase)}</strong><p>{outlook.oceanic_drivers.enso.status}</p></div><div><Waves aria-hidden="true" /><small>IOD driver</small><strong>{outlook.oceanic_drivers.iod ? humanize(outlook.oceanic_drivers.iod.phase) : "Not supplied"}</strong><p>{outlook.oceanic_drivers.iod?.status ?? "No verified IOD field in this issue."}</p></div></div><div className="home-tendency-pair"><div><ThermometerSun aria-hidden="true" /><span>Temperature</span><strong>{outlook.temperature.headline}</strong>{outlook.temperature.tendencies[0] ? <em>{formatProbability(outlook.temperature.tendencies[0].probability, outlook.temperature.tendencies[0].qualifier)}</em> : null}</div><div><CloudRain aria-hidden="true" /><span>Precipitation</span><strong>{outlook.precipitation.headline}</strong>{outlook.precipitation.tendencies[0] ? <em>{formatProbability(outlook.precipitation.tendencies[0].probability, outlook.precipitation.tendencies[0].qualifier)}</em> : null}</div></div><SourceBadge source={outlook.sources[0]} compact /></div> : <DataUnavailable label="WMO seasonal outlook" detail="Observed chapters remain available." />}
             </div>
           </article>
         </div>
