@@ -1,9 +1,3 @@
 "use client";
-
-import dynamic from "next/dynamic";
-
-const HomeScrollController = dynamic(() => import("./home-scroll-controller"), { ssr: false });
-
-export function HomeMotionLoader() {
-  return <HomeScrollController />;
-}
+import { useEffect } from "react";
+export function HomeMotionLoader() { useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return; const elements = [...document.querySelectorAll<HTMLElement>(".home-reveal")]; const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { (entry.target as HTMLElement).dataset.revealed = "true"; observer.unobserve(entry.target); } }), { threshold: 0.12, rootMargin: "0px 0px -4%" }); elements.forEach((element) => observer.observe(element)); return () => observer.disconnect(); }, []); return null; }

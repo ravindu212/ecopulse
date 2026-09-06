@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PageMotion } from "@/components/motion";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SiteFooter } from "@/components/layout/site-footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <a className="skip-link" href="#page-content">Skip to content</a>
-        <ThemeProvider><PageMotion>{children}</PageMotion></ThemeProvider>
+        <ThemeProvider><PageMotion>{children}</PageMotion><SiteFooter /></ThemeProvider>
       </body>
     </html>
   );

@@ -48,7 +48,7 @@ export default async function Home() {
         outlook={settledValue(results[3])}
         events={settledValue(results[4])}
       />
-      <HomeEducation outlook={settledValue(results[3])} />
+      <HomeEducation />
       <HomeAction />
       <HomeMotionLoader />
     </main>

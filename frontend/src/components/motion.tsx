@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, type Variants, useReducedMotion } from "framer-motion";
-import { usePathname } from "next/navigation";
 import { type ReactNode } from "react";
 
 export const fadeUp: Variants = { hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.48, ease: "easeOut" } } };
@@ -23,8 +22,5 @@ export function MotionList({ children, className = "" }: { children: ReactNode; 
 }
 
 export function PageMotion({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
-
-  return <motion.div id="page-content" tabIndex={-1} key={pathname} data-page-motion variants={reduceMotion ? undefined : fadeIn} initial={false} animate="visible">{children}</motion.div>;
+  return <div id="page-content" tabIndex={-1} data-page-motion>{children}</div>;
 }

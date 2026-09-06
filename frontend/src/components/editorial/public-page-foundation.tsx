@@ -11,8 +11,8 @@ type PublicPageFoundationProps = {
 
 export function PublicPageFoundation({ eyebrow, title, description, questions }: PublicPageFoundationProps) {
   return (
-    <main className="min-h-screen bg-[var(--background)] px-5 py-6 text-[var(--foreground)] sm:px-8">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen bg-[var(--background)] px-5 py-6 text-[var(--foreground)] sm:px-[4vw]">
+      <div className="mx-auto max-w-[100rem]">
         <SiteHeader />
         <section className="grid min-h-[70vh] content-between gap-16 py-16 sm:py-24 lg:grid-cols-[1fr_22rem] lg:items-end">
           <div className="max-w-3xl">

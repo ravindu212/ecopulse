@@ -3,7 +3,7 @@
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { clearAccessToken, getAccessToken } from "@/lib/api";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,6 +35,17 @@ export function SiteHeader() {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const update = () => setScrolled(window.scrollY > 28);
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
   const authenticated = useSyncExternalStore(
     (notify) => {
       window.addEventListener("storage", notify);
@@ -63,8 +74,9 @@ export function SiteHeader() {
     `site-nav-link ${isCurrentPath(pathname, href) ? "site-nav-link-active" : ""}`;
 
   return (
-    <header className="site-header">
-      <nav className="site-header-inner" aria-label="Primary navigation">
+    <div className="site-header-slot">
+      <header className={`site-header ${scrolled ? "site-header-scrolled" : ""}`}>
+        <nav className="site-header-inner" aria-label="Primary navigation">
         <Link className="site-wordmark" href="/" onClick={closeMenus}>
           <span className="site-wordmark-mark" aria-hidden="true" />
           <span>EcoPulse</span>
@@ -156,7 +168,8 @@ export function SiteHeader() {
             )}
           </div>
         )}
-      </nav>
-    </header>
+        </nav>
+      </header>
+    </div>
   );
 }
