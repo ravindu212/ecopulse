@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/docs/oauth2-redirect",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/api/v1/:path*",
+      "destination": "/api/index"
+    }
+  ]
+}

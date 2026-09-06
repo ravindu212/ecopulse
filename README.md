@@ -185,10 +185,13 @@ Create a separate Vercel project for the API with these settings:
 - **Python version:** 3.12, selected by `backend/.python-version`
 
 `api/index.py` is the only Vercel entrypoint. It imports the existing FastAPI
-application rather than creating another app or registering routes again. No
-`vercel.json` or `pyproject.toml` is required for this setup. FastAPI therefore
-keeps the public paths exactly as declared, including `/health`, `/docs`, and
-`/api/v1/*`; the application does not add another `/api` prefix.
+application rather than creating another app or registering routes again.
+`vercel.json` internally rewrites the public FastAPI paths to that function while
+preserving the original request URL for FastAPI routing. It deliberately excludes
+`/api/index`, so the function entrypoint is not rewritten into itself. No
+`pyproject.toml` is required. FastAPI keeps the public paths exactly as declared,
+including `/health`, `/docs`, and `/api/v1/*`; the application does not add
+another `/api` prefix.
 
 Set the following Vercel environment variables for Production (and for Preview
 only if preview deployments should use a database):
