@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -77,10 +78,16 @@ export function SiteHeader() {
     <div className="site-header-slot">
       <header className={`site-header ${scrolled ? "site-header-scrolled" : ""}`}>
         <nav className="site-header-inner" aria-label="Primary navigation">
-        <Link className="site-wordmark" href="/" onClick={closeMenus}>
-          <span className="site-wordmark-mark" aria-hidden="true" />
-          <span>EcoPulse</span>
-        </Link>
+          <Link className="site-wordmark" href="/" onClick={closeMenus} aria-label="EcoPulse home">
+            <Image
+              className="site-wordmark-logo"
+              src="/media/home/logo.png"
+              alt="EcoPulse"
+              width={2172}
+              height={724}
+              priority
+            />
+          </Link>
 
         <div className="site-nav-desktop">
           {publicLinks.map(([label, href]) => (

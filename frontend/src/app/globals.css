@@ -170,20 +170,15 @@ body {
 .site-wordmark {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  color: var(--foreground-strong);
-  font-size: 0.9rem;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  flex: 0 0 auto;
+  padding: 0.2rem 0.45rem;
+
 }
 
-.site-wordmark-mark {
-  width: 0.62rem;
-  height: 0.62rem;
-  border-radius: 50%;
-  background: var(--primary);
-  box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--primary) 13%, transparent);
+.site-wordmark-logo {
+  display: block;
+  width: clamp(7.4rem, 9vw, 9.4rem);
+  height: auto;
 }
 
 .site-nav-desktop,
