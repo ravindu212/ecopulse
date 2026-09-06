@@ -174,18 +174,21 @@ Meteorological and Hydrological Service.
 
 Create a separate Vercel project for the API with these settings:
 
+- **Repository:** `ravindu212/ecopulse`
 - **Root Directory:** `backend`
-- **Framework Preset:** FastAPI (automatically detected)
+- **Framework Preset:** FastAPI / autodetected Python
+- **Dependency source:** `requirements.txt`
+- **Entrypoint:** `api/index.py`, which exposes the existing `app.main:app`
 - **Build Command:** leave unset
 - **Output Directory:** leave unset
-- **Install Command:** leave unset; Vercel installs `requirements.txt`
+- **Install Command:** leave unset
 - **Python version:** 3.12, selected by `backend/.python-version`
 
-No `vercel.json` or duplicate `api/index.py` is needed. With `backend` as the
-project root, Vercel's FastAPI zero-configuration detection loads the existing
-`app` object from `app/main.py` and sends every request to it. FastAPI therefore
+`api/index.py` is the only Vercel entrypoint. It imports the existing FastAPI
+application rather than creating another app or registering routes again. No
+`vercel.json` or `pyproject.toml` is required for this setup. FastAPI therefore
 keeps the public paths exactly as declared, including `/health`, `/docs`, and
-`/api/v1/*`; there is no additional `/api` prefix.
+`/api/v1/*`; the application does not add another `/api` prefix.
 
 Set the following Vercel environment variables for Production (and for Preview
 only if preview deployments should use a database):
@@ -214,9 +217,12 @@ schema migrations and other session-dependent operations:
 ```bash
 cd backend
 source .venv/bin/activate
-DATABASE_URL='postgresql+psycopg://<user>:<password>@<endpoint>.<region>.aws.neon.tech/<database>?sslmode=require&channel_binding=require' alembic upgrade head
-DATABASE_URL='postgresql+psycopg://<user>:<password>@<endpoint>.<region>.aws.neon.tech/<database>?sslmode=require&channel_binding=require' python -m app.seed.seed
+alembic upgrade head
+python -m app.seed.seed
 ```
+
+Run those commands with `DATABASE_URL` set to the direct Neon connection string
+including `sslmode=require`. Do not place credentials in the repository.
 
 The seed command is idempotent. Neither migrations nor seeding run automatically
 inside the Vercel function.
