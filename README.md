@@ -169,3 +169,68 @@ them `upcoming`, `current`, or `expired` without season-specific logic.
 and remains available if no verified outlook record exists. For local decisions,
 use outlooks from the relevant WMO Regional Climate Centre or National
 Meteorological and Hydrological Service.
+
+## Deploy the FastAPI backend to Vercel
+
+Create a separate Vercel project for the API with these settings:
+
+- **Root Directory:** `backend`
+- **Framework Preset:** FastAPI (automatically detected)
+- **Build Command:** leave unset
+- **Output Directory:** leave unset
+- **Install Command:** leave unset; Vercel installs `requirements.txt`
+- **Python version:** 3.12, selected by `backend/.python-version`
+
+No `vercel.json` or duplicate `api/index.py` is needed. With `backend` as the
+project root, Vercel's FastAPI zero-configuration detection loads the existing
+`app` object from `app/main.py` and sends every request to it. FastAPI therefore
+keeps the public paths exactly as declared, including `/health`, `/docs`, and
+`/api/v1/*`; there is no additional `/api` prefix.
+
+Set the following Vercel environment variables for Production (and for Preview
+only if preview deployments should use a database):
+
+```text
+DATABASE_URL=postgresql+psycopg://<user>:<password>@<endpoint>-pooler.<region>.aws.neon.tech/<database>?sslmode=require&channel_binding=require
+JWT_SECRET=<strong-random-secret>
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+FRONTEND_ORIGIN=https://<frontend-project>.vercel.app
+ENVIRONMENT=production
+```
+
+Use the pooled Neon connection string for the running serverless application.
+EcoPulse uses SQLAlchemy's `NullPool` when `ENVIRONMENT=production`, so individual
+Vercel instances do not retain their own connection pools; Neon handles pooling.
+Local development retains the existing SQLAlchemy pool and still runs with
+`uvicorn app.main:app --reload`.
+
+### Apply production migrations and seed data
+
+Do this once from a trusted local shell or CI job, not from a Vercel request or
+FastAPI startup hook. Neon recommends its direct (non-`-pooler`) connection for
+schema migrations and other session-dependent operations:
+
+```bash
+cd backend
+source .venv/bin/activate
+DATABASE_URL='postgresql+psycopg://<user>:<password>@<endpoint>.<region>.aws.neon.tech/<database>?sslmode=require&channel_binding=require' alembic upgrade head
+DATABASE_URL='postgresql+psycopg://<user>:<password>@<endpoint>.<region>.aws.neon.tech/<database>?sslmode=require&channel_binding=require' python -m app.seed.seed
+```
+
+The seed command is idempotent. Neither migrations nor seeding run automatically
+inside the Vercel function.
+
+After deployment, verify:
+
+```text
+https://<backend-project>.vercel.app/health
+https://<backend-project>.vercel.app/docs
+https://<backend-project>.vercel.app/api/v1/climate/overview
+```
+
+The climate services use process-local TTL caches. A warm function instance can
+reuse its cache, but cold starts and separately scaled instances begin with an
+empty cache. This is acceptable for the initial deployment and does not change
+the existing `current`, `stale`, or `unavailable` behavior. The backend does not
+write application data to local files or rely on durable local filesystem state.
