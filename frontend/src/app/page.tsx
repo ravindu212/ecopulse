@@ -1,87 +1,56 @@
-import Link from "next/link";
-import { ArrowRight, BarChart3, BatteryCharging, Bike, CheckCircle2, ClipboardCheck, Leaf, Recycle, Sparkles, Target, Utensils, Zap } from "lucide-react";
-import { AuthNav } from "@/components/layout/auth-nav";
-import { MotionList, MotionSection } from "@/components/motion";
+import type { Metadata } from "next";
+import { connection } from "next/server";
 
-const workflow = [
-  ["01", "Assess your habits", "Complete a short climate-lifestyle assessment across Transport, Energy, Food, and Waste.", ClipboardCheck],
-  ["02", "Understand your score", "See a Lifestyle Climate Action Score and the category with the clearest opportunity for improvement.", Target],
-  ["03", "Take action", "Receive practical, rule-based recommendations shaped by your latest assessment.", Sparkles],
-  ["04", "Build momentum", "Complete actions, earn XP, maintain streaks, and join focused climate challenges.", Zap],
-  ["05", "Track progress", "Review completed actions, category activity, assessment history, and estimated CO2e avoided.", BarChart3],
-] as const;
+import { HomeAction } from "@/components/home/home-action";
+import { HomeDataStory } from "@/components/home/home-data-story";
+import { HomeEducation } from "@/components/home/home-education";
+import { HomeMotionLoader } from "@/components/home/home-motion-loader";
+import { SiteHeader } from "@/components/layout/site-header";
+import { getClimateCO2, getClimateENSO, getClimateOutlook, getClimateOverview, getEarthEvents } from "@/lib/api";
+import "./home.css";
 
-const categories = [
-  ["Transport", "Lower-impact mobility: walking, cycling, public transport, shared travel, fewer unnecessary trips, and more efficient journeys.", Bike],
-  ["Energy", "Everyday electricity awareness: unused devices, responsible cooling, efficient appliances, and avoidable energy use.", BatteryCharging],
-  ["Food", "Practical food habits: reducing waste, planning consumption, and considering lower-impact meal choices.", Utensils],
-  ["Waste", "More responsible consumption: reducing disposables, reusing materials, and recycling where facilities are available.", Recycle],
-] as const;
+export const metadata: Metadata = {
+  title: { absolute: "EcoPulse | Earth signals, clearly observed" },
+  description: "A public climate observatory for current atmospheric, ocean, temperature, ENSO, sea-ice, outlook, and Earth-event signals—with an optional pathway to practical personal action.",
+  openGraph: {
+    title: "EcoPulse | Earth signals, clearly observed",
+    description: "Explore source-backed climate signals, understand how Earth systems connect, and choose an optional personal climate pathway.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EcoPulse | Earth signals, clearly observed",
+    description: "A cinematic, source-backed public climate observatory and optional personal action platform.",
+  },
+};
 
-const features = [
-  ["Climate Assessment", "A guided reflection on everyday habits across four practical categories."],
-  ["Personal Climate Action Score", "A lifestyle-guidance score that highlights relative strengths and opportunities."],
-  ["Personalized Actions", "Rule-based recommendations focused on achievable next steps in weaker categories."],
-  ["Action Tracking", "Start and complete actions while keeping real activity history in your account."],
-  ["XP & Streaks", "Small feedback loops that make consistent habits easier to notice and repeat."],
-  ["Climate Challenges", "Curated action groups such as Low-Carbon Commute, Energy Saver, and Zero-Waste Starter."],
-  ["Progress Analytics", "See category activity, assessment history, completed actions, and challenge progress."],
-  ["Estimated CO2e Tracking", "Compare the educational estimated impact values attached to completed actions."],
-] as const;
+function settledValue<T>(result: PromiseSettledResult<T>): T | null {
+  return result.status === "fulfilled" ? result.value : null;
+}
 
-const sources = [
-  ["United Nations Sustainable Development Goals", "https://sdgs.un.org/goals"],
-  ["United Nations SDG 13: Climate Action", "https://sdgs.un.org/goals/goal13"],
-  ["Intergovernmental Panel on Climate Change", "https://www.ipcc.ch/"],
-  ["United Nations Environment Programme", "https://www.unep.org/"],
-  ["International Energy Agency", "https://www.iea.org/"],
-  ["Our World in Data: CO₂ and Greenhouse Gas Emissions", "https://ourworldindata.org/co2-and-greenhouse-gas-emissions"],
-] as const;
+export default async function Home() {
+  await connection();
+  const results = await Promise.allSettled([
+    getClimateOverview(),
+    getClimateCO2(),
+    getClimateENSO(),
+    getClimateOutlook(),
+    getEarthEvents({ days: 30, limit: 8 }),
+  ] as const);
 
-export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#071A17] px-5 py-6 text-[#F4FFF9] sm:px-8">
-      <div className="mx-auto max-w-6xl">
-        <AuthNav />
-        <MotionList>
-          <section className="relative py-20 sm:py-28">
-            <div className="absolute -right-48 -top-32 h-96 w-96 rounded-full bg-[#5EE89A]/10 blur-3xl" />
-            <div className="absolute left-1/3 top-40 h-48 w-48 rounded-full bg-[#62D9FF]/10 blur-3xl" />
-            <MotionSection className="relative max-w-4xl">
-              <p className="text-sm font-semibold tracking-[0.2em] text-[#5EE89A]">ECO PULSE · CLIMATE ACTION</p>
-              <h1 className="mt-6 max-w-3xl text-5xl font-bold tracking-tight sm:text-7xl">YOUR ACTIONS SHAPE TOMORROW</h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-[#A5BBB2]">EcoPulse turns climate awareness into practical daily action. Understand your habits, discover meaningful climate actions, complete challenges, and track your personal progress.</p>
-              <div className="mt-9 flex flex-wrap gap-3"><Link className="inline-flex items-center gap-2 rounded-lg bg-[#5EE89A] px-5 py-3 font-semibold text-[#071A17] transition hover:bg-[#82f0b0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62D9FF]" href="/register">Get Started <ArrowRight size={17} aria-hidden="true" /></Link><a className="rounded-lg border border-white/20 px-5 py-3 font-semibold transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62D9FF]" href="#sdg13">Explore Climate Action</a></div>
-            </MotionSection>
-          </section>
-        </MotionList>
-
-        <MotionSection className="grid gap-5 border-y border-white/10 py-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center"><div><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">THE 2030 AGENDA</p><h2 className="mt-3 text-3xl font-semibold">What are the Sustainable Development Goals?</h2><p className="mt-4 max-w-2xl leading-7 text-[#A5BBB2]">The Sustainable Development Goals, or SDGs, are 17 global goals adopted by United Nations member states as part of the 2030 Agenda. They connect challenges including poverty, health, education, inequality, sustainable cities, responsible consumption, climate change, and environmental protection.</p></div><aside className="rounded-2xl border border-[#62D9FF]/25 bg-[#15332C] p-6"><p className="text-sm font-semibold text-[#62D9FF]">EcoPulse is designed around SDG 13.</p><p className="mt-3 leading-7 text-[#A5BBB2]">It is an independent educational project, not an official United Nations product and not affiliated with or endorsed by the UN.</p><a className="mt-4 inline-flex items-center gap-2 font-semibold text-[#62D9FF] hover:text-[#F4FFF9]" href="https://sdgs.un.org/goals" target="_blank" rel="noreferrer">Explore the UN SDGs <ArrowRight size={16} aria-hidden="true" /></a></aside></MotionSection>
-
-        <MotionSection className="py-16"><div id="sdg13" className="scroll-mt-8 rounded-3xl border border-white/10 bg-[#0E2722] p-7 sm:p-10"><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">SDG 13: CLIMATE ACTION</p><h2 className="mt-3 text-3xl font-semibold">Turn awareness into a practical next step.</h2><p className="mt-4 max-w-3xl leading-7 text-[#A5BBB2]">SDG 13 calls for urgent action to address climate change and its impacts. Its themes include climate awareness, resilience, education, and action by individuals, communities, institutions, industries, and governments. EcoPulse supports the spirit of SDG 13 by helping individuals turn climate awareness into practical, trackable everyday action.</p><a className="mt-5 inline-flex items-center gap-2 font-semibold text-[#62D9FF] hover:text-[#F4FFF9]" href="https://sdgs.un.org/goals/goal13" target="_blank" rel="noreferrer">Read the official SDG 13 page <ArrowRight size={16} aria-hidden="true" /></a></div></MotionSection>
-
-        <MotionSection className="grid gap-8 border-y border-white/10 py-16 lg:grid-cols-2 lg:items-start"><div><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">THE PROBLEM</p><h2 className="mt-3 text-3xl font-semibold">Knowing climate change is serious does not automatically create action.</h2><p className="mt-4 leading-7 text-[#A5BBB2]">For many students and young adults, climate information can feel overwhelming while the first useful personal step remains unclear. Goals are difficult to turn into routines, progress is hard to see, and motivation can fade when impact feels invisible.</p></div><ul className="grid gap-3" aria-label="Common barriers to everyday climate action">{["Not knowing which everyday actions matter", "Uncertainty about which habits should change first", "Difficulty turning intentions into repeatable routines", "Limited visible feedback on personal progress"].map((item) => <li key={item} className="flex gap-3 rounded-xl border border-white/10 bg-[#15332C] p-4 text-[#A5BBB2]"><CheckCircle2 className="mt-0.5 shrink-0 text-[#5EE89A]" size={18} aria-hidden="true" />{item}</li>)}</ul></MotionSection>
-
-        <MotionSection className="grid gap-5 py-16 lg:grid-cols-[.8fr_1.2fr] lg:items-center"><aside className="rounded-2xl border border-[#5EE89A]/25 bg-[#15332C] p-6"><Leaf className="text-[#5EE89A]" size={28} aria-hidden="true" /><h2 className="mt-4 text-2xl font-semibold">Why everyday action matters</h2><p className="mt-3 leading-7 text-[#A5BBB2]">Individual action alone cannot solve climate change. Governments, institutions, industries, and communities are essential. EcoPulse focuses on the personal-action layer: choices that can build awareness, influence routines, and support broader sustainable patterns.</p></aside><div><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">OUR SOLUTION</p><h2 className="mt-3 text-3xl font-semibold">A clearer loop from reflection to momentum.</h2><p className="mt-4 max-w-2xl leading-7 text-[#A5BBB2]">EcoPulse helps users assess climate-related lifestyle habits, understand weaker categories, receive personalized actions, complete challenges, earn XP, build streaks, and monitor estimated progress over time.</p><p className="mt-6 font-semibold text-[#F4FFF9]">Assess <span className="text-[#5EE89A]">→</span> Understand <span className="text-[#5EE89A]">→</span> Act <span className="text-[#5EE89A]">→</span> Complete <span className="text-[#5EE89A]">→</span> Track <span className="text-[#5EE89A]">→</span> Improve</p></div></MotionSection>
-
-        <MotionSection className="border-y border-white/10 py-16"><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">HOW ECOPULSE WORKS</p><h2 className="mt-3 max-w-2xl text-3xl font-semibold">A short path from habits to useful progress.</h2><div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-5">{workflow.map(([number, title, text, Icon]) => <article key={number} className="rounded-2xl border border-white/10 bg-[#0E2722] p-5"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-[#5EE89A]">{number}</span><Icon size={20} className="text-[#62D9FF]" aria-hidden="true" /></div><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-[#A5BBB2]">{text}</p></article>)}</div></MotionSection>
-
-        <MotionSection className="grid gap-6 py-16 lg:grid-cols-2"><div className="rounded-2xl border border-white/10 bg-[#0E2722] p-7"><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">CLIMATE ACTION SCORE</p><h2 className="mt-3 text-3xl font-semibold">A guidance score, not a carbon audit.</h2><p className="mt-4 leading-7 text-[#A5BBB2]">EcoPulse&apos;s Climate Action Score is built from assessment responses across Transport, Energy, Food, and Waste. Higher scores indicate more climate-conscious habits within the EcoPulse assessment model and help identify relative opportunities for improvement.</p><p className="mt-5 rounded-xl border border-white/10 bg-[#15332C] p-4 text-sm leading-6 text-[#A5BBB2]">It is not an official carbon footprint, professional emissions accounting, or certified environmental measurement.</p></div><div className="rounded-2xl border border-[#62D9FF]/25 bg-[#15332C] p-7"><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">ESTIMATED CO2E AVOIDED</p><h2 className="mt-3 text-3xl font-semibold">Educational estimates for relative impact.</h2><p className="mt-4 leading-7 text-[#A5BBB2]">Certain actions include an estimated climate-impact value. These educational approximations help make relative impact easier to understand when actions are completed.</p><p className="mt-5 rounded-xl border border-white/10 bg-[#0E2722] p-4 text-sm leading-6 text-[#A5BBB2]">They are not verified carbon accounting, carbon offsets, or certified emissions reductions.</p></div></MotionSection>
-
-        <MotionSection className="border-y border-white/10 py-16"><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">FOUR EVERYDAY AREAS</p><h2 className="mt-3 text-3xl font-semibold">Climate action starts with habits you can see.</h2><div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{categories.map(([title, text, Icon]) => <article key={title} className="rounded-2xl border border-white/10 bg-[#15332C] p-5"><Icon size={24} className="text-[#5EE89A]" aria-hidden="true" /><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-[#A5BBB2]">{text}</p></article>)}</div></MotionSection>
-
-        <MotionSection className="grid gap-6 py-16 lg:grid-cols-2"><div><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">FROM AWARENESS TO PRACTICAL ACTION</p><h2 className="mt-3 text-3xl font-semibold">Recommendations with a clear reason.</h2><p className="mt-4 leading-7 text-[#A5BBB2]">EcoPulse uses the latest assessment to prioritize weaker categories, practical achievable actions, and actions a user has not recently completed. The recommendation engine is rule-based and personalized using assessment data; it is not presented as AI.</p></div><div className="rounded-2xl border border-white/10 bg-[#0E2722] p-6"><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">CLIMATE CHALLENGES</p><h2 className="mt-3 text-2xl font-semibold">Focused goals, built from real actions.</h2><p className="mt-3 leading-7 text-[#A5BBB2]">Challenges group related actions into achievable themes, including Low-Carbon Commute, Energy Saver, and Zero-Waste Starter. Progress reflects completed actions already stored in the user&apos;s account.</p></div></MotionSection>
-
-        <MotionSection className="border-y border-white/10 py-16"><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">CORE FEATURES</p><h2 className="mt-3 text-3xl font-semibold">Everything needed to make progress visible.</h2><div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{features.map(([title, text]) => <article key={title} className="rounded-2xl border border-white/10 bg-[#0E2722] p-5"><h3 className="text-lg font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-[#A5BBB2]">{text}</p></article>)}</div></MotionSection>
-
-        <MotionSection className="grid gap-6 py-16 lg:grid-cols-[1.1fr_.9fr]"><div><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">MAKE PROGRESS VISIBLE</p><h2 className="mt-3 text-3xl font-semibold">Feedback helps momentum become a routine.</h2><p className="mt-4 max-w-2xl leading-7 text-[#A5BBB2]">EcoPulse tracks completed actions, XP, current and longest streaks, category activity, assessment history, challenge progress, and estimated CO2e avoided. The aim is to make genuine activity easier to understand and continue—without claiming more certainty than the data supports.</p></div><aside className="rounded-2xl border border-white/10 bg-[#15332C] p-6"><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">DESIGNED FOR EVERYDAY CLIMATE ACTION</p><p className="mt-4 leading-7 text-[#A5BBB2]">EcoPulse is primarily for students, young adults, and anyone who wants simple, practical climate guidance. The architecture can support broader audiences later, but it does not claim to be universally or scientifically individualized.</p></aside></MotionSection>
-
-        <MotionSection className="border-y border-white/10 py-16"><p className="text-sm font-semibold tracking-[0.16em] text-[#5EE89A]">WHY ECOPULSE?</p><h2 className="mt-3 text-3xl font-semibold">A functioning SDG 13 digital solution—not a static awareness page.</h2><p className="mt-4 max-w-3xl leading-7 text-[#A5BBB2]">EcoPulse was created as a practical academic project around UN Sustainable Development Goal 13. Assessment data is stored, backend scoring is performed, recommendations are generated, actions are tracked, challenge progress is calculated, and progress data is visualized. The goal is meaningful interaction that helps explain how a real climate-action product can work.</p></MotionSection>
-
-        <MotionSection className="py-16"><p className="text-sm font-semibold tracking-[0.16em] text-[#62D9FF]">CLIMATE SOURCES &amp; FURTHER READING</p><h2 className="mt-3 text-3xl font-semibold">Learn from trusted public sources.</h2><div className="mt-7 grid gap-3 sm:grid-cols-2">{sources.map(([label, href]) => <a key={href} className="group flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#0E2722] p-4 text-sm font-semibold transition hover:bg-[#15332C] hover:text-[#62D9FF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62D9FF]" href={href} target="_blank" rel="noreferrer">{label}<ArrowRight className="shrink-0 transition group-hover:translate-x-1" size={17} aria-hidden="true" /></a>)}</div></MotionSection>
-
-        <MotionSection className="mb-10 rounded-3xl border border-[#5EE89A]/20 bg-[#15332C] p-8 text-center sm:p-12"><p className="text-sm font-semibold tracking-[0.18em] text-[#62D9FF]">READY WHEN YOU ARE</p><h2 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold">Climate action becomes easier when the next step is clear.</h2><p className="mx-auto mt-4 max-w-xl leading-7 text-[#A5BBB2]">Assess your habits, discover practical actions, and start building a more climate-conscious routine.</p><div className="mt-7 flex flex-wrap justify-center gap-3"><Link className="inline-flex items-center gap-2 rounded-lg bg-[#5EE89A] px-5 py-3 font-semibold text-[#071A17] transition hover:bg-[#82f0b0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62D9FF]" href="/register">Start Your Assessment <ArrowRight size={17} aria-hidden="true" /></Link><Link className="rounded-lg border border-white/20 px-5 py-3 font-semibold transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#62D9FF]" href="/login">Sign In</Link></div></MotionSection>
-      </div>
+    <main className="home-observatory" data-home-observatory>
+      <div className="home-navigation"><SiteHeader /></div>
+      <HomeDataStory
+        overview={settledValue(results[0])}
+        co2={settledValue(results[1])}
+        enso={settledValue(results[2])}
+        outlook={settledValue(results[3])}
+        events={settledValue(results[4])}
+      />
+      <HomeEducation outlook={settledValue(results[3])} />
+      <HomeAction />
+      <HomeMotionLoader />
     </main>
   );
 }
