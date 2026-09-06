@@ -1,3 +1,11 @@
+import type {
+  ClimateCO2,
+  ClimateENSO,
+  ClimateOutlook,
+  ClimateOverview,
+  EarthEvents,
+} from "@/types/climate";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 const ACCESS_TOKEN_KEY = "ecopulse_access_token";
@@ -157,4 +165,36 @@ export function getCurrentUser() {
 
 export function getProgress() {
   return apiFetch<ProgressData>("/progress");
+}
+
+async function publicClimateFetch<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) {
+    throw new ApiError(`Climate source request failed for ${path}.`, response.status);
+  }
+  return response.json() as Promise<T>;
+}
+
+export function getClimateOverview() {
+  return publicClimateFetch<ClimateOverview>("/climate/overview");
+}
+
+export function getClimateCO2() {
+  return publicClimateFetch<ClimateCO2>("/climate/co2");
+}
+
+export function getClimateENSO() {
+  return publicClimateFetch<ClimateENSO>("/climate/enso");
+}
+
+export function getClimateOutlook() {
+  return publicClimateFetch<ClimateOutlook>("/climate/outlook");
+}
+
+export function getEarthEvents({ days = 30, limit = 8 }: { days?: number; limit?: number } = {}) {
+  const params = new URLSearchParams({ days: String(days), limit: String(limit) });
+  return publicClimateFetch<EarthEvents>(`/climate/events?${params.toString()}`);
 }
